@@ -27,7 +27,9 @@
   },
   "homepage": "https://github.com/Johnpaul-Attamah/repair_tracks#readme",
   "dependencies": {
-    "express": "^4.17.1"
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "mongoose": "^5.9.27"
   },
   "devDependencies": {
     "@babel/core": "^7.10.5",
