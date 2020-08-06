@@ -2,6 +2,7 @@ import express from 'express';
 import gravatar from 'gravatar';
 import bcrypt from 'bcryptjs';
 import User from '../models/User';
+import validateRegisterInput from './../validations/register';
 
 const router = express.Router();
 
@@ -13,10 +14,14 @@ const router = express.Router();
  * @param {Object} error Object to display error messages.
  */
 router.post('/register', async (req, res) => {
+    const { errors, isValid } = validateRegisterInput(req.body);
+
+    if (!isValid) return res.status(400).json(errors);
     try {
         const userInDB = await User.findOne({ email: req.body.email });
         if (userInDB) {
-            return res.status(422).json({ message: 'email exists.' })
+            errors.email = 'email exists.';
+            return res.status(422).json(errors);
         } else {
             const avatar = gravatar.url(req.body.email, {
                 s: '200',
