@@ -5,6 +5,7 @@ import User from '../models/User';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import validateRegisterInput from './../validations/register';
+import validateLoginInput from './../validations/login';
 
 dotenv.config();
 
@@ -70,6 +71,10 @@ router.post('/register', async (req, res) => {
  * @param {Object} error Object to display error messages.
  */
 router.post('/login', async (req, res) => {
+    const { errors, isValid } = validateLoginInput(req.body);
+
+    if (!isValid) return res.status(400).json(errors);
+
     const { inputValue, password } = req.body;
     try {
         const user = (/\S+@\S+\.\S+/.test(inputValue)) ? 
@@ -77,7 +82,8 @@ router.post('/login', async (req, res) => {
         await User.findOne({ username: inputValue });
 
         if(!user) {
-            return res.status(404).json({ message: 'User not found'});
+            errors.inputValue = 'invalid email or username'
+            return res.status(404).json(errors);
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
@@ -98,7 +104,8 @@ router.post('/login', async (req, res) => {
                 });
             });
         } else {
-            return res.status(400).json({ password: 'password incorrect' });
+            errors.password = 'password incorrect';
+            return res.status(400).json(errors);
         }
         
     } catch (error) {
