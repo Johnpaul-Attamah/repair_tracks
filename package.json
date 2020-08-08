@@ -6,11 +6,12 @@
   "scripts": {
     "start": "npm run prod",
     "build": "npm-run-all clean transpile",
-    "dev": "SET NODE_ENV=development & npm run dev-server",
-    "prod": "SET NODE_ENV=production & npm-run-all build prod-server",
-    "test": "SET NODE_ENV=test & npm-run-all build stage-test",
+    "dev": "SET NODE_ENV=development && npm run dev-server",
+    "prod": "SET NODE_ENV=production && npm-run-all build prod-server",
+    "test": "SET NODE_ENV=test && npm run stage-test",
+    "report-coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "prod-server": "node ./dist-src/server",
-    "stage-test": "mocha ./dist-src/test/* --timeout=10000 --exit",
+    "stage-test": "nyc mocha ./src/test/* --timeout=10000 --exit",
     "dev-server": "nodemon --exec babel-node ./src/server",
     "transpile": "babel ./src --out-dir dist-src",
     "clean": "rimraf dist-src"
@@ -42,10 +43,13 @@
     "@babel/core": "^7.10.5",
     "@babel/node": "^7.10.5",
     "@babel/preset-env": "^7.10.4",
+    "@istanbuljs/nyc-config-babel": "^3.0.0",
+    "babel-plugin-istanbul": "^6.0.0",
     "chai": "^4.2.0",
     "chai-http": "^4.3.0",
     "mocha": "^8.1.1",
     "npm-run-all": "^4.1.5",
+    "nyc": "^15.1.0",
     "rimraf": "^3.0.2"
   }
 }
