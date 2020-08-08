@@ -6,12 +6,12 @@
   "scripts": {
     "start": "npm run prod",
     "build": "npm-run-all clean transpile",
-    "dev": "SET NODE_ENV=development && npm run dev-server",
-    "prod": "SET NODE_ENV=production && npm-run-all build prod-server",
-    "test": "SET NODE_ENV=test && npm run stage-test",
+    "dev": "set NODE_ENV=development && npm run dev-server",
+    "prod": "set NODE_ENV=production && npm-run-all build prod-server",
+    "test": "set NODE_ENV=test && npm run stage-test",
     "report-coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "prod-server": "node ./dist-src/server",
-    "stage-test": "nyc mocha ./src/test/* --timeout=10000 --exit",
+    "stage-test": "nyc --reporter=html --reporter=text --reporter=lcov mocha ./src/test/* --timeout=10000 --exit",
     "dev-server": "nodemon --exec babel-node ./src/server",
     "transpile": "babel ./src --out-dir dist-src",
     "clean": "rimraf dist-src"
