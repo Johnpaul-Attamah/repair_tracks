@@ -132,8 +132,8 @@ describe('Users Registration', () => {
                     res.body.should.have.property('errors');
                     res.body.should.have.property('errors');
                     res.body.errors.should.have.property('password').eql(`Password must contain 8 to 15 characters 
-        and must contain at least one lowercase letter
-        one uppercase letter and at least a number`);
+      and must contain at least one lowercase letter
+      one uppercase letter and at least a number`);
                     res.body.should.have.property('status').eql('failed');
                     done();
                 });
