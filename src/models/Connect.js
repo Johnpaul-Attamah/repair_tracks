@@ -1,15 +1,17 @@
-import dotenv from 'dotenv';
-dotenv.config();
+import { config } from 'dotenv';
+config();
 
 let url = '';
 
-if (process.env.NODE_ENV.trim() === 'production') {
+if (process.env.NODE_ENV == 'production') {
     url = process.env.PROD_DB_URI;
 }
-if (process.env.NODE_ENV.trim() === 'test') {
+
+if (process.env.NODE_ENV == 'test') {
     url = process.env.TEST_DB_URI;
 }
-if (process.env.NODE_ENV.trim() === 'development') {
+
+if (process.env.NODE_ENV == 'development') {
     url = process.env.DEV_DB_URI;
 }
 
