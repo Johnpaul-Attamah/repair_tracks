@@ -6,13 +6,13 @@
   "scripts": {
     "start": "npm run prod",
     "build": "npm-run-all clean transpile",
-    "dev": "SET NODE_ENV=development && npm run dev-server",
-    "prod": "SET NODE_ENV=production && npm-run-all build prod-server",
-    "test": "SET NODE_ENV=test && npm run stage-test",
+    "dev": "npm run dev-server",
+    "prod": "npm-run-all build prod-server",
+    "test": "npm run stage-test",
     "report-coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
-    "prod-server": "node ./dist-src/server",
-    "stage-test": "nyc mocha ./src/test/* --timeout=10000 --exit",
-    "dev-server": "nodemon --exec babel-node ./src/server",
+    "prod-server": "cross-env NODE_ENV=production node ./dist-src/server",
+    "stage-test": "cross-env NODE_ENV=test nyc mocha ./src/test/* --timeout=10000 --exit",
+    "dev-server": "cross-env NODE_ENV=development babel-node ./src/server",
     "transpile": "babel ./src --out-dir dist-src",
     "clean": "rimraf dist-src"
   },
@@ -31,6 +31,7 @@
   "homepage": "https://github.com/Johnpaul-Attamah/repair_tracks#readme",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "cross-env": "^7.0.2",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "gravatar": "^1.8.1",
