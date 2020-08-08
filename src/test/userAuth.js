@@ -8,17 +8,16 @@ const should = chai.should();
 
 chai.use(chaiHttp);
 
-
-describe('Users', () => {
+describe('Users Registration', () => {
     before((done) => {
         User.deleteMany({}, (err) => { 
            done();           
         });        
     });
 
-    /*
-     * Test the /POST route
-     */
+/*
+    * Test the /POST route
+    */
     describe('/POST new User', () => {
         it('it should not register a user without username field', (done) => {
             let user = {
@@ -133,8 +132,8 @@ describe('Users', () => {
                     res.body.should.have.property('errors');
                     res.body.should.have.property('errors');
                     res.body.errors.should.have.property('password').eql(`Password must contain 8 to 15 characters 
-      and must contain at least one lowercase letter
-      one uppercase letter and at least a number`);
+        and must contain at least one lowercase letter
+        one uppercase letter and at least a number`);
                     res.body.should.have.property('status').eql('failed');
                     done();
                 });
@@ -274,7 +273,7 @@ describe('POST /auth/login', () => {
                 done();
             });
     });
-    
+
     it('It should not login user when password field missing', (done) => {
         const user = {
             inputValue: 'Johnson123'
