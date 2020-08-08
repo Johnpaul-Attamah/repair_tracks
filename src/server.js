@@ -29,3 +29,5 @@ app.get('*', (req, res) => res.json({ message: 'Welcome Here!'}));
 routeMiddleware(app);
 
 app.listen(port, () => console.log(`Listening on http://localhost:${port}`));
+
+export default app;

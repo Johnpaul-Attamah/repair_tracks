@@ -9,6 +9,12 @@ import validateLoginInput from './../validations/login';
 
 dotenv.config();
 
+/**
+ * use regenerator runtime to enable 
+ * babel transplilng async await and generators.
+ */
+import "regenerator-runtime/runtime.js";
+
 const router = express.Router();
 
 /**
@@ -21,14 +27,20 @@ const router = express.Router();
 router.post('/register', async (req, res) => {
     const { errors, isValid } = validateRegisterInput(req.body);
 
-    if (!isValid) return res.status(400).json(errors);
+    if (!isValid) return res.status(400).json({
+        status: 'failed',
+        errors
+    });
     try {
         const userInDB = await User.findOne({ email: req.body.email }) || 
         await User.findOne({ username: req.body.username });
         if (userInDB) {
             if (userInDB.email === req.body.email) errors.email = 'email exists.';
             if (userInDB.username === req.body.username) errors.username = 'username exists.';
-            return res.status(422).json(errors);
+            return res.status(422).json({
+                status: 'success',
+                errors
+            });
         } else {
             const avatar = gravatar.url(req.body.email, {
                 s: '200',
@@ -73,7 +85,10 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
     const { errors, isValid } = validateLoginInput(req.body);
 
-    if (!isValid) return res.status(400).json(errors);
+    if (!isValid) return res.status(400).json({
+        status: 'failed',
+        errors
+    });
 
     const { inputValue, password } = req.body;
     try {
@@ -82,8 +97,11 @@ router.post('/login', async (req, res) => {
         await User.findOne({ username: inputValue });
 
         if(!user) {
-            errors.inputValue = 'invalid email or username'
-            return res.status(404).json(errors);
+            errors.inputValue = 'email or username not found.'
+            return res.status(404).json({
+                status: 'success',
+                errors
+            });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
@@ -99,13 +117,17 @@ router.post('/login', async (req, res) => {
                 expiresIn: 3600
             }, (err, token) => {
                 return res.status(200).json({
-                    msg: 'success',
+                    status: 'success',
+                    message: 'You are logged in!',
                     token: 'Bearer ' + token
                 });
             });
         } else {
             errors.password = 'password incorrect';
-            return res.status(400).json(errors);
+            return res.status(401).json({
+                status: 'failed',
+                errors
+            });
         }
         
     } catch (error) {

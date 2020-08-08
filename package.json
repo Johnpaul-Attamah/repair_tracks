@@ -8,7 +8,9 @@
     "build": "npm-run-all clean transpile",
     "dev": "SET NODE_ENV=development & npm run dev-server",
     "prod": "SET NODE_ENV=production & npm-run-all build prod-server",
+    "test": "SET NODE_ENV=test & npm-run-all build stage-test",
     "prod-server": "node ./dist-src/server",
+    "stage-test": "mocha ./dist-src/test/* --timeout=10000 --exit",
     "dev-server": "nodemon --exec babel-node ./src/server",
     "transpile": "babel ./src --out-dir dist-src",
     "clean": "rimraf dist-src"
@@ -36,11 +38,14 @@
     "validator": "^13.1.1"
   },
   "devDependencies": {
+    "@babel/cli": "^7.10.5",
     "@babel/core": "^7.10.5",
     "@babel/node": "^7.10.5",
     "@babel/preset-env": "^7.10.4",
     "chai": "^4.2.0",
-    "mocha": "^8.1.0",
+    "chai-http": "^4.3.0",
+    "mocha": "^8.1.1",
+    "npm-run-all": "^4.1.5",
     "rimraf": "^3.0.2"
   }
 }
