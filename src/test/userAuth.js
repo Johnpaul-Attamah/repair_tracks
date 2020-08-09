@@ -8,17 +8,16 @@ const should = chai.should();
 
 chai.use(chaiHttp);
 
-
-describe('Users', () => {
+describe('Users Registration', () => {
     before((done) => {
         User.deleteMany({}, (err) => { 
            done();           
         });        
     });
 
-    /*
-     * Test the /POST route
-     */
+/*
+    * Test the /POST route
+    */
     describe('/POST new User', () => {
         it('it should not register a user without username field', (done) => {
             let user = {
@@ -274,7 +273,7 @@ describe('POST /auth/login', () => {
                 done();
             });
     });
-    
+
     it('It should not login user when password field missing', (done) => {
         const user = {
             inputValue: 'Johnson123'
