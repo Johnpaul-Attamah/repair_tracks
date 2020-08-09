@@ -3,6 +3,8 @@ dotenv.config();
 
 let url = '';
 
+console.log(process.env.NODE_ENV)
+
 if (process.env.NODE_ENV.trim() === 'production') {
     url = process.env.PROD_DB_URI;
 }

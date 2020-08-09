@@ -1,17 +1,24 @@
 language: node_js
-node_js: 
-- "stable"
-env:
-  global:
-    - NODE_ENV=test
+node_js:
+  - "stable"
+
+services:
+  - mongodb
+
+before_script:
+  - sleep 15
+  - mongo mydb_test --eval 'db.createUser({user:"root",pwd:"__protected__",roles:["readWrite"]});'
+
 before_install:
-- npm install -g mocha
-- npm install 
+  - npm install -g mocha
+  - npm install -g codecov
+  - npm install 
+
 script: 
-- npm test
-- npm run report-coverage
-branches:
-- only
-- develop
-directories:
-  - node_modules
+  - npm test
+  - npm run report-coverage
+  - codecov
+
+cache:
+  directories:
+    - "node_modules"
