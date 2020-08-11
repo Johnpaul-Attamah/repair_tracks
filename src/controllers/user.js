@@ -134,4 +134,5 @@ router.post('/login', async (req, res) => {
         res.status(500).json(error);
     }
 })
+
 export default router;

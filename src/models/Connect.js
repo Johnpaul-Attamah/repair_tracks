@@ -13,5 +13,4 @@ if (process.env.NODE_ENV === 'development') {
     url = process.env.DEV_DB_URI;
 }
 
-console.log(url)
 export default url;

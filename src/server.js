@@ -1,8 +1,10 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
+import passport from 'passport';
 import url from './models/Connect';
 import routeMiddleware from './routes/routes';
+import { passportMiddleware } from './middlewares/passport';
 
 dotenv.config();
 
@@ -12,7 +14,8 @@ const app = express();
     try {
         await mongoose.connect(url, {
             useNewUrlParser: true,
-            useUnifiedTopology: true
+            useUnifiedTopology: true,
+            useFindAndModify: false
         });
     } catch (err) {
         throw err;
@@ -21,12 +24,14 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(passport.initialize());
 
 const port = process.env.PORT || 5000;
 
 app.get('*', (req, res) => res.json({ message: 'Welcome Here!'}));
 
 routeMiddleware(app);
+passportMiddleware(passport);
 
 app.listen(port, () => console.log(`Listening on http://localhost:${port}`));
 
