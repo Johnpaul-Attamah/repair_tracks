@@ -1,9 +1,8 @@
-import { config } from 'dotenv';
-config();
+import dotenv from 'dotenv';
+dotenv.config();
 
 let url = '';
 
-console.log(process.env.TEST_DB_URI, '>>>>>')
 if (process.env.NODE_ENV == 'production') {
     url = process.env.PROD_DB_URI;
 }
