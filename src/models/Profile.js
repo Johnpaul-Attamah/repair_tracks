@@ -33,18 +33,23 @@ const profileSchema = new Schema({
             type: String,
             required: true,
         },
-        job_description: {
+        jobDescription: {
             type: String,
+            required: true
         },
-        hobbies: [{
-            type: String,
-        }],
-        gender: {
+        location: {
             type: String
         },
-        marital_status: {
-            type: Boolean,
-            default: false
+        hobbies: [{
+            type: String
+        }],
+        gender: {
+            type: String,
+            required: true
+        },
+        maritalStatus: {
+            type: String,
+            required: true
         }
     }],
     social: {
