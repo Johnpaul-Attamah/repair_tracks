@@ -389,31 +389,30 @@ describe('User Profile', () => {
         });
         it('it should create profile with social fields', (done) => {
             let profile = {
-                handle: 'Manchi',
+                handle: 'OgaEmma',
                 section: 'Technical',
-                branch: 'Abuja',
-                location: 'Maitama',
-                status: 'Operations Officer',
-                facebook: 'https://facebook.com/manchi',
-                youtube: 'https://youtube.com/manchi',
-                twitter: 'https://twitter.com/manchi',
-                instagram: 'https://instagram.com/manchi',
-                linkedin: 'https://linkedlin.com/manchi'
+                branch: 'Enugu',
+                location: 'Nsukka',
+                status: 'Electrician',
+                facebook: 'https://facebook.com/ogaemma',
+                youtube: 'https://youtube.com/ogaemma',
+                twitter: 'https://twitter.com/ogaemma',
+                instagram: 'https://instagram.com/ogaemma',
+                linkedin: 'https://linkedlin.com/ogaemma'
             }
             chai.request(server)
                 .post('/api/v1/profile')
-                .set('Authorization', tokenObject.token)
+                .set('Authorization', scapeGoatToken.token)
                 .send(profile)
                 .end((err, res) => {
-                    res.should.have.status(200);
+                    res.should.have.status(201);
                     res.body.should.be.a('object');
-                    res.body.should.have.property('userProfile');
-                    res.body.userProfile.should.be.a('object');
-                    res.body.should.have.property('msg').eql('Profile Updated successfully');
-
-                    res.body.userProfile.should.have.property('social');
-                    res.body.userProfile.social.should.be.a('object');
-                    res.body.should.have.property('status').eql('Success');
+                    res.body.should.have.property('newProfile');
+                    res.body.newProfile.should.be.a('object');
+                    res.body.should.have.property('message').eql('Profile created successfully.');
+                    res.body.newProfile.should.have.property('social');
+                    res.body.newProfile.social.should.be.a('object');
+                    res.body.should.have.property('status').eql('success');
                     done();
                 });
         });
@@ -443,130 +442,198 @@ describe('User Profile', () => {
                     done();
                 });
         });
+
+        describe('/post - Update profile personal Details', () => {
+            it("Should not create a profile when token didn't match", (done) => {
+                let profile = {
+                    handle: 'Manchi',
+                    section: 'Technical',
+                    branch: 'Abuja',
+                    location: 'Maitama',
+                    status: 'Operations Officer'
+                }
+                chai.request(server)
+                    .post('/api/v1/profile')
+                    .set('Authorization', fakeToken)
+                    .send(profile)
+                    .end((err, req) => {
+                        req.should.have.status(401);
+                        req.body.should.be.eql({});
+                        done(err);
+                    });
+            });
+
+            it('should not update personal details without a phone number', (done) => {
+                let personalDetails = {
+                    jobDescription: 'Design and develop complete user interface',
+                    location: 'Abuja',
+                    gender: 'male',
+                    maritalStatus: 'single'
+                }
+                chai.request(server)
+                    .post('/api/v1/profile/personalDetails')
+                    .set('Authorization', tokenObject.token)
+                    .send(personalDetails)
+                    .end((err, res) => {
+                        res.should.have.status(400);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('errors');
+                        res.body.errors.should.have.property('phone').eql('Invalid phone number');
+                        res.body.should.have.property('status').eql('Failed');
+                        done();
+                    });
+            });
+            it('should not update personal details without a Job description', (done) => {
+                let personalDetails = {
+                    phone: '+2348123456787',
+                    location: 'Abuja',
+                    gender: 'male',
+                    maritalStatus: 'single'
+                }
+                chai.request(server)
+                    .post('/api/v1/profile/personalDetails')
+                    .set('Authorization', tokenObject.token)
+                    .send(personalDetails)
+                    .end((err, res) => {
+                        res.should.have.status(400);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('errors');
+                        res.body.errors.should.have.property('jobDescription').eql('Job Description field is required');
+                        res.body.should.have.property('status').eql('Failed');
+                        done();
+                    });
+            });
+            it('should not update personal details without a gender', (done) => {
+                let personalDetails = {
+                    phone: '+2348123456787',
+                    jobDescription: 'Design and develop complete user interface',
+                    location: 'Abuja',
+                    maritalStatus: 'single'
+                }
+                chai.request(server)
+                    .post('/api/v1/profile/personalDetails')
+                    .set('Authorization', tokenObject.token)
+                    .send(personalDetails)
+                    .end((err, res) => {
+                        res.should.have.status(400);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('errors');
+                        res.body.errors.should.have.property('gender').eql('Gender field is required');
+                        res.body.should.have.property('status').eql('Failed');
+                        done();
+                    });
+            });
+            it('should not update personal details without a marital status', (done) => {
+                let personalDetails = {
+                    phone: '+2348123456787',
+                    jobDescription: 'Design and develop complete user interface',
+                    location: 'Abuja',
+                    gender: 'male',
+                }
+                chai.request(server)
+                    .post('/api/v1/profile/personalDetails')
+                    .set('Authorization', tokenObject.token)
+                    .send(personalDetails)
+                    .end((err, res) => {
+                        res.should.have.status(400);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('errors');
+                        res.body.errors.should.have.property('maritalStatus').eql('Marital Status field is required');
+                        res.body.should.have.property('status').eql('Failed');
+                        done();
+                    });
+            });
+            it('should not update personal details without a valid phone number', (done) => {
+                let personalDetails = {
+                    phone: '08123567847',
+                    jobDescription: 'Design and develop complete user interface',
+                    location: 'Abuja',
+                    gender: 'male',
+                    maritalStatus: 'single'
+                }
+                chai.request(server)
+                    .post('/api/v1/profile/personalDetails')
+                    .set('Authorization', tokenObject.token)
+                    .send(personalDetails)
+                    .end((err, res) => {
+                        res.should.have.status(400);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('errors');
+                        res.body.errors.should.have.property('phone').eql('Invalid phone number');
+                        res.body.should.have.property('status').eql('Failed');
+                        done();
+                    });
+            });
+            it('should not update personal details without a valid gender value', (done) => {
+                let personalDetails = {
+                    phone: '+2348123456787',
+                    jobDescription: 'Design and develop complete user interface',
+                    location: 'Abuja',
+                    gender: 'mali',
+                    maritalStatus: 'single'
+                }
+                chai.request(server)
+                    .post('/api/v1/profile/personalDetails')
+                    .set('Authorization', tokenObject.token)
+                    .send(personalDetails)
+                    .end((err, res) => {
+                        res.should.have.status(400);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('errors');
+                        res.body.errors.should.have.property('gender').eql('invalid value for gender');
+                        res.body.should.have.property('status').eql('failed');
+                        done();
+                    });
+            });
+            it('should not update personal details without a valid marital status', (done) => {
+                let personalDetails = {
+                    phone: '+2348123456787',
+                    jobDescription: 'Design and develop complete user interface',
+                    location: 'Abuja',
+                    gender: 'male',
+                    maritalStatus: 'engaged'
+                }
+                chai.request(server)
+                    .post('/api/v1/profile/personalDetails')
+                    .set('Authorization', tokenObject.token)
+                    .send(personalDetails)
+                    .end((err, res) => {
+                        res.should.have.status(400);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('errors');
+                        res.body.errors.should.have.property('maritalStatus').eql('invalid value for marital Status.');
+                        res.body.should.have.property('status').eql('failed');
+                        done();
+                    });
+            });
+            it('should update personal Detail', (done) => {
+                let personalDetails = {
+                    phone: '+2348123456787',
+                    jobDescription: 'Design and develop complete user interface',
+                    location: 'Abuja',
+                    hobbies: 'cooking, reading, problem solving',
+                    gender: 'male',
+                    maritalStatus: 'married'
+                }
+                chai.request(server)
+                    .post('/api/v1/profile/personalDetails')
+                    .set('Authorization', tokenObject.token)
+                    .send(personalDetails)
+                    .end((err, res) => {
+                        res.should.have.status(200);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('updatedProfile');
+                        res.body.updatedProfile.should.have.property('personal_details');
+                        res.body.updatedProfile.personal_details.should.be.a('array');
+                        res.body.updatedProfile.should.be.a('object');
+                        res.body.should.have.property('message').eql('Personal Details Added successfully!');
+                        res.body.should.have.property('status').eql('successful');
+                        done();
+                    });
+            });
+            
+        });
+
     });
+
 })
-
-// describe('POST /auth/login', () => {
-//     it('It should login user with email and asign token', (done) => {
-//         const user = {
-//             inputValue: 'johnson@email.com',
-//             password: 'johnSON2020',
-//         };
-//         chai.request(server)
-//             .post('/api/v1/auth/login')
-//             .send(user)
-//             .end((err, res) => {
-//                 res.should.have.status(200);
-//                 res.body.should.be.a('object');
-//                 res.body.should.have.property('status').eql('success');
-//                 res.body.should.have.property('message').eql('You are logged in!');
-//                 res.body.should.have.property('token').be.a('string');
-//                 done();
-//             });
-//     });
-
-//     it('It should login user with username and asign token', (done) => {
-//         const user = {
-//             inputValue: 'Johnson123',
-//             password: 'johnSON2020',
-//         };
-//         chai.request(server)
-//             .post('/api/v1/auth/login')
-//             .send(user)
-//             .end((err, res) => {
-//                 res.should.have.status(200);
-//                 res.body.should.be.a('object');
-//                 res.body.should.have.property('status').eql('success');
-//                 res.body.should.have.property('message').eql('You are logged in!');
-//                 res.body.should.have.property('token').be.a('string');
-//                 done();
-//             });
-//     });
-
-//     it('It should not login user when email/username field missing', (done) => {
-//         const user = {
-//             password: 'johnSON2020',
-//         };
-//         chai.request(server)
-//             .post('/api/v1/auth/login')
-//             .send(user)
-//             .end((err, res) => {
-//                 res.should.have.status(400);
-//                 res.body.should.be.a('object');
-//                 res.body.should.have.property('errors');
-//                 res.body.should.have.property('status').eql('failed');
-//                 res.body.errors.should.have.property('inputValue').eql('Username or email is required');
-//                 done();
-//             });
-//     });
-
-//     it('It should not login user when password field missing', (done) => {
-//         const user = {
-//             inputValue: 'Johnson123'
-//         };
-//         chai.request(server)
-//             .post('/api/v1/auth/login')
-//             .send(user)
-//             .end((err, res) => {
-//                 res.should.have.status(400);
-//                 res.body.should.be.a('object');
-//                 res.body.should.have.property('errors');
-//                 res.body.should.have.property('status').eql('failed');
-//                 res.body.errors.should.have.property('password').eql('password field is required');
-//                 done();
-//             });
-//     });
-
-//     it('It should not login user, when email mismatch', (done) => {
-//         const user = {
-//             inputValue: 'Johncena@email.com',
-//             password: 'johnSON2020',
-//         };
-//         chai.request(server)
-//             .post('/api/v1/auth/login')
-//             .send(user)
-//             .end((err, res) => {
-//                 res.should.have.status(404);
-//                 res.body.should.be.a('object');
-//                 res.body.should.have.property('errors');
-//                 res.body.errors.should.have.property('inputValue').eql('email or username not found.');
-//                 res.body.should.have.property('status').eql('success');
-//                 done();
-//             });
-//     });
-
-//     it('It should not login user, when username mismatch', (done) => {
-//         const user = {
-//             inputValue: 'Johncena123',
-//             password: 'johnSON2020',
-//         };
-//         chai.request(server)
-//             .post('/api/v1/auth/login')
-//             .send(user)
-//             .end((err, res) => {
-//                 res.should.have.status(404);
-//                 res.body.should.be.a('object');
-//                 res.body.should.have.property('errors');
-//                 res.body.errors.should.have.property('inputValue').eql('email or username not found.');
-//                 res.body.should.have.property('status').eql('success');
-//                 done();
-//             });
-//     });
-//     it('It should not login user, when password mismatch', (done) => {
-//         const user = {
-//             inputValue: 'Johnson123',
-//             password: 'mypassword',
-//         };
-//         chai.request(server)
-//             .post('/api/v1/auth/login')
-//             .send(user)
-//             .end((err, res) => {
-//                 res.should.have.status(401);
-//                 res.body.should.be.a('object');
-//                 res.body.should.have.property('errors');
-//                 res.body.errors.should.have.property('password').eql('password incorrect');
-//                 res.body.should.have.property('status').eql('failed');
-//                 done();
-//             });
-//     });
-// });

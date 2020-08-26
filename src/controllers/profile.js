@@ -89,7 +89,7 @@ router.post('/', passport.authenticate('jwt', {
 /**
  * @description Add Experience
  * @access Private access
- * @apiroute POST api/v1/profile/experience
+ * @apiroute POST api/v1/profile/personalDetails
  **/ 
 router.post('/personalDetails', passport.authenticate('jwt', {
     session: false
@@ -101,7 +101,10 @@ router.post('/personalDetails', passport.authenticate('jwt', {
 
     //Check validation
     if (!isValid) {
-        return res.status(400).json(errors);
+        return res.status(400).json({
+            status: 'Failed',
+            errors
+        });
     }
     try {
         const profile = await Profile.findOne({
@@ -125,11 +128,15 @@ router.post('/personalDetails', passport.authenticate('jwt', {
             });
         }
 
+        const hobbies = 
+            (req.body.hobbies) ? 
+            req.body.hobbies.split(',') : 
+            [];
         const Mydetails = {
             phone: req.body.phone,
             jobDescription: req.body.jobDescription,
             location: req.body.location,
-            hobbies: req.body.hobbies.split(','),
+            hobbies,
             gender: req.body.gender,
             maritalStatus: req.body.maritalStatus
         }
@@ -138,7 +145,7 @@ router.post('/personalDetails', passport.authenticate('jwt', {
 
         const updatedProfile = await profile.save();
         return res.status(200).json({
-            status: 'successfull',
+            status: 'successful',
             message: 'Personal Details Added successfully!',
             updatedProfile
         });
