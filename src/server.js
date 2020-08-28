@@ -25,13 +25,13 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
+passportMiddleware(passport);
 
-const port = process.env.PORT || 5000;
+routeMiddleware(app);
 
 app.get('*', (req, res) => res.json({ message: 'Welcome Here!'}));
 
-routeMiddleware(app);
-passportMiddleware(passport);
+const port = process.env.PORT || 5000;
 
 app.listen(port, () => console.log(`Listening on http://localhost:${port}`));
 
