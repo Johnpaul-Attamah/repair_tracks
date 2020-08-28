@@ -24,6 +24,7 @@ describe('User Profile', () => {
     const tokenObject = {};
     const fakeToken = '56hhhi88090990-09jjhbbbtggbll*nbkj';
     const scapeGoatToken = {};
+    const userId = {}
     
     describe('/Post - Create or update profile', () => {
         before((done) => {
@@ -632,6 +633,69 @@ describe('User Profile', () => {
                     });
             });
             
+        });
+
+        describe('/GET - view profile', () => {
+            it('should get logged in user profile', (done) => {
+                chai.request(server)
+                    .get('/api/v1/profile')
+                    .set('Authorization', tokenObject.token)
+                    .end((err, res) => {
+                        res.should.have.status(200);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('profile');
+                        res.body.profile.should.have.property('personal_details');
+                        res.body.profile.personal_details.should.be.a('array');
+                        res.body.profile.should.be.a('object');
+                        res.body.should.have.property('message').eql('profile fetched successfully');
+                        res.body.should.have.property('status').eql('success');
+                        done();
+                    });
+            });
+            it('should get all profiles', (done) => {
+                chai.request(server)
+                    .get('/api/v1/profile/all')
+                    .end((err, res) => {
+                        res.should.have.status(200);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('profiles');
+                        res.body.profiles.should.be.a('array');
+                        res.body.should.have.property('message').eql('Profiles fetched successfully');
+                        res.body.should.have.property('status').eql('success');
+                        done();
+                    });
+            });
+            it('should get profile by handle', (done) => {
+                chai.request(server)
+                    .get('/api/v1/profile/handle/Manchi')
+                    .end((err, res) => {
+                        res.should.have.status(200);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('profile');
+                        res.body.profile.should.have.property('personal_details');
+                        res.body.profile.personal_details.should.be.a('array');
+                        res.body.profile.should.be.a('object');
+                        res.body.should.have.property('message').eql('profile fetched successfully');
+                        res.body.should.have.property('status').eql('success');
+                        userId._id = res.body.profile.user;
+                        done();
+                    });
+            });
+            it('should get profile by id', (done) => {
+                chai.request(server)
+                    .get(`/api/v1/profile/user/${userId._id}`)
+                    .end((err, res) => {
+                        res.should.have.status(200);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('profile');
+                        res.body.profile.should.have.property('personal_details');
+                        res.body.profile.personal_details.should.be.a('array');
+                        res.body.profile.should.be.a('object');
+                        res.body.should.have.property('message').eql('profile fetched successfully');
+                        res.body.should.have.property('status').eql('success');
+                        done();
+                    });
+            });
         });
 
     });
