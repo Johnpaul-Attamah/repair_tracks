@@ -14,7 +14,8 @@
     "stage-test": "cross-env NODE_ENV=test nyc --reporter=html --reporter=text --reporter=lcov mocha ./src/test/* --timeout=10000 --exit",
     "dev-server": "cross-env NODE_ENV=development nodemon --exec babel-node ./src/server",
     "transpile": "babel ./src --out-dir dist-src",
-    "clean": "rimraf dist-src"
+    "clean": "rimraf dist-src",
+    "stop-win": "Taskkill /IM node.exe /F"
   },
   "repository": {
     "type": "git",

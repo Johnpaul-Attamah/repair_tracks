@@ -2,7 +2,6 @@ import express from 'express';
 import passport from 'passport';
 
 import Profile from '../models/Profile';
-import User from '../models/User';
 import validateProfileInput from './../validations/profile';
 import validatePersonalDetailsInput from './../validations/personalDetails';
 
@@ -87,7 +86,7 @@ router.post('/', passport.authenticate('jwt', {
 });
 
 /**
- * @description Add Experience
+ * @description Add Personal Details
  * @access Private access
  * @apiroute POST api/v1/profile/personalDetails
  **/ 
@@ -153,6 +152,116 @@ router.post('/personalDetails', passport.authenticate('jwt', {
         return res.status(500).json(err)
     }
 });
+
+/**
+ * @description GET my profile
+ * @access Private access
+ * GET api/v1/profile/
+ * */
+router.get('/', passport.authenticate('jwt', {
+    session: false
+}), async (req, res) => {
+        const errors = {};
+        try {
+            const profile = await Profile.findOne({
+                user: req.user.id
+            }).populate('User', ['name', 'avatar']);
+            if (!profile) {
+                errors.noProfile = 'There is no profile for this user';
+                return res.status(404).json({
+                    status: 'success',
+                    errors
+                })
+            }
+            return res.status(200).json({
+                status: 'success',
+                message: 'profile fetched successfully',
+                profile
+            })
+        } catch (error) {
+            return res.status(500).json(error);
+        }
+});
+
+/**
+ * @description View all Profiles
+ * @access Public access
+ * @apiroute GET api/v1/profile/all
+ **/
+router.get('/all', async (req, res) => {
+    const errors = {};
+    try {
+        const profiles = 
+        await Profile.find().populate('User', ['name', 'avatar']);
+        if (!profiles) {
+            errors.noProfiles = 'No profiles found';
+            return res.status(404).json({
+                status: 'success',
+                errors
+            });
+        }
+        return res.status(200).json({
+            status: 'success',
+            message: 'Profiles fetched successfully',
+            profiles
+        })
+    } catch (error) {
+        return res.status(500).json(error);
+    }
+});
+
+/**
+ * @description GET profile by handle
+ * @access Public access
+ * GET api/v1/profile/handle/:handle
+ * */
+router.get('/handle/:handle', async (req, res) => {
+    const errors = {};
+    try {
+        const profile = await Profile.findOne({ handle: req.params.handle }).populate('User', ['name', 'avatar']);
+        if(!profile) {
+            errors.noProfile = 'There is no profile for this user';
+            return res.status(404).json({
+                status: 'success',
+                errors
+            })
+        }
+        return res.status(200).json({
+            status: 'success',
+            message: 'profile fetched successfully',
+            profile
+        })
+    } catch (error) {
+        return res.status(500).json(error);
+    }
+});
+
+/**
+ * @description GET profile by id
+ * @access Public access
+ * GET api/v1/profile/handle/:id
+ * */
+router.get('/user/:user_id', async (req, res) => {
+    const errors = {};
+    try {
+        const profile = await Profile.findOne({ user: req.params.user_id }).populate('User', ['name', 'avatar']);
+        if(!profile) {
+            errors.noProfile = 'There is no profile for this user';
+            return res.status(404).json({
+                status: 'success',
+                errors
+            })
+        }
+        return res.status(200).json({
+            status: 'success',
+            message: 'profile fetched successfully',
+            profile
+        })
+    } catch (error) {
+        return res.status(500).json(error);
+    }
+});
+
 
 
 
