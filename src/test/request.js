@@ -233,7 +233,7 @@ describe('User Requests', () => {
                 });
         });
 
-        it('should create request for user', () => {
+        it('should create request for user', (done) => {
             const userRequest = {
                 title: 'Request title',
                 section: 'Technical',
