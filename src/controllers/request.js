@@ -33,6 +33,7 @@ router.post('/', passport.authenticate('jwt', {
             user: req.user.id
         }).populate('User', ['name', 'avatar']);
         if (profile) {
+            requestFields.user = req.user.id;
             requestFields.profile = profile._id;
             requestFields.rcode = generateRcode();
             if (req.body.title) requestFields.title = req.body.title;
@@ -60,6 +61,64 @@ router.post('/', passport.authenticate('jwt', {
     } catch (error) {
         return res.status(500).json(error);
     } 
+});
+
+/**
+ * @route GET api/v1/request 
+ * @access Private Access 
+ * @description get request by user
+ ***/
+router.get('/', passport.authenticate('jwt', { session: false }), async (req, res) => {
+    const errors = {};
+    try {
+        const requests = await Request.find()
+        .populate('User', ['name', 'avatar']);
+
+        if(!requests) {
+            errors.noRequests = 'You have not made any requests'
+            return res.status(404).json({
+                status: success,
+                errors
+            });
+        }
+        return res.status(200).json({
+            status: 'success',
+            message: 'requests fetched successfully',
+            requests
+        });
+    } catch (error) {
+        return res.status(500).json(error);
+    }
+    
+});
+
+/**
+ * @description GET request by id
+ * @access private access
+ * GET api/v1/request/:id
+ * */
+router.get('/:request_id', passport.authenticate('jwt', {
+     session: false }), async (req, res) => {
+    const errors = {};
+    try {
+        const request = await Request.findOne({
+            _id: req.params.request_id,
+        }).populate('User', ['name', 'avatar']);
+        if (!request) {
+            errors.noRequest = 'There is no request for this user';
+            return res.status(404).json({
+                status: 'success',
+                errors
+            })
+        }
+        return res.status(200).json({
+            status: 'success',
+            message: 'request fetched successfully',
+            request
+        })
+    } catch (error) {
+        return res.status(500).json(error);
+    }
 });
 
 

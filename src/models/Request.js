@@ -7,6 +7,10 @@ const RequestSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'profile'
     },
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: 'user'
+    },
     title: {
         type: String,
         required: true
