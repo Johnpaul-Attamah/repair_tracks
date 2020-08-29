@@ -20,7 +20,7 @@ router.post('/', passport.authenticate('jwt', {
 
     if (!isValid) {
         return res.status(400).json({
-            status: "failed",
+            status: "Failed",
             errors
         });
     }
@@ -52,9 +52,10 @@ router.post('/', passport.authenticate('jwt', {
                 createdBy
             });
         }
+        errors.noProfile = 'Edit profile to continue';
         return res.status(400).json({
             status: 'failed',
-            message: 'Edit profile to continue'
+            errors
         });
     } catch (error) {
         return res.status(500).json(error);

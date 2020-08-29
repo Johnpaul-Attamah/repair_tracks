@@ -11,7 +11,6 @@ chai.use(chaiHttp);
 /*
 * Test the /POST route
 */
-
 describe('User Profile', () => {
     userAccount();
 
@@ -22,6 +21,7 @@ describe('User Profile', () => {
     });
 
     const tokenObject = {};
+    const tokenObject2 = {};
     const fakeToken = '56hhhi88090990-09jjhbbbtggbll*nbkj';
     const scapeGoatToken = {};
     const userId = {}
@@ -40,6 +40,21 @@ describe('User Profile', () => {
                     done();
                 });
         });
+
+        before((done) => {
+            const user = {
+                inputValue: 'engineer@email.com',
+                password: 'engineEER2020',
+            };
+            chai.request(server)
+                .post('/api/v1/auth/login')
+                .send(user)
+                .end((err, res) => {
+                    tokenObject2.token = res.body.token;
+                    done();
+                });
+        });
+
 
         before((done) => {
             const user = {
@@ -692,6 +707,19 @@ describe('User Profile', () => {
                         res.body.profile.personal_details.should.be.a('array');
                         res.body.profile.should.be.a('object');
                         res.body.should.have.property('message').eql('profile fetched successfully');
+                        res.body.should.have.property('status').eql('success');
+                        done();
+                    });
+            });
+            it('should not get profile when there is none', (done) => {
+                chai.request(server)
+                    .get('/api/v1/profile')
+                    .set('Authorization', tokenObject2.token)
+                    .end((err, res) => {
+                        res.should.have.status(404);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('errors');
+                        res.body.errors.should.have.property('noProfile').eql('There is no profile for this user');
                         res.body.should.have.property('status').eql('success');
                         done();
                     });
