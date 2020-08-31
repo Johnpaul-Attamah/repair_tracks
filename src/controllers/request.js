@@ -123,6 +123,71 @@ router.get('/:request_id', passport.authenticate('jwt', {
         return res.status(500).json(error);
     }
 });
+/**
+ * @description update request
+ * @access private access
+ * PATCH api/v1/request/:id
+ * */
+router.patch('/:request_id', passport.authenticate('jwt', {
+     session: false }), async (req, res) => {
+        const { errors, isValid } = validateRequestInput(req.body);
+
+        if (!isValid) {
+            return res.status(400).json({
+                status: "Failed",
+                errors
+            });
+        }
+
+        const requestFields = {};
+
+    try {
+        const request = await Request.findOne({
+            user: req.user.id,
+            _id: req.params.request_id
+        }).populate('User', ['name', 'avatar']);
+        if (request) {
+            if (request.status === 'new') {
+                requestFields.user = request.user;
+                requestFields.profile = request.profile;
+                requestFields.rcode = request.rcode;
+                requestFields.updated_at = Date.now();
+                if (req.body.title) requestFields.title = req.body.title;
+                if (req.body.section) requestFields.section = req.body.section;
+                if (req.body.location) requestFields.location = req.body.location;
+                if (req.body.branch) requestFields.branch = req.body.branch;
+                if (req.body.description) requestFields.description = req.body.description;
+
+                const upDatedRequest = await Request.findOneAndUpdate({
+                    user: req.user.id,
+                    _id: req.params.request_id
+                }, {
+                    $set: requestFields
+                }, {
+                    new: true
+                });
+
+                return res.status(200).json({
+                    status: 'Success',
+                    msg: 'Request Updated successfully',
+                    upDatedRequest
+                });
+            }
+            errors.noPermission = 'You do not have permission to edit a request that is processing';
+            return res.status(401).json({
+                status: 'failed',
+                errors
+            });
+        }
+        errors.noRequest = 'The request is not found';
+        return res.status(404).json({
+            status: 'success',
+            errors
+        });
+    } catch (error) {
+        return res.status(500).json(error);
+    }
+});
 
 
 export default router;
