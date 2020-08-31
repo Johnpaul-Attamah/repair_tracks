@@ -71,20 +71,22 @@ router.post('/', passport.authenticate('jwt', {
 router.get('/', passport.authenticate('jwt', { session: false }), async (req, res) => {
     const errors = {};
     try {
-        const requests = await Request.find()
+        const requests = await Request.find({
+            user: req.user.id
+        })
         .populate('User', ['name', 'avatar']);
 
-        if(!requests) {
-            errors.noRequests = 'You have not made any requests'
-            return res.status(404).json({
-                status: success,
-                errors
+        if(requests.length) {
+            return res.status(200).json({
+                status: 'success',
+                message: 'requests fetched successfully',
+                requests
             });
         }
-        return res.status(200).json({
+        errors.noRequests = 'You have not made any requests'
+        return res.status(404).json({
             status: 'success',
-            message: 'requests fetched successfully',
-            requests
+            errors
         });
     } catch (error) {
         return res.status(500).json(error);
@@ -102,20 +104,21 @@ router.get('/:request_id', passport.authenticate('jwt', {
     const errors = {};
     try {
         const request = await Request.findOne({
+            user: req.user.id,
             _id: req.params.request_id,
         }).populate('User', ['name', 'avatar']);
-        if (!request) {
-            errors.noRequest = 'There is no request for this user';
-            return res.status(404).json({
+        if (request) {
+            return res.status(200).json({
                 status: 'success',
-                errors
-            })
+                message: 'request fetched successfully',
+                request
+            });
         }
-        return res.status(200).json({
+        errors.noRequest = 'The request is not found';
+        return res.status(404).json({
             status: 'success',
-            message: 'request fetched successfully',
-            request
-        })
+            errors
+        });
     } catch (error) {
         return res.status(500).json(error);
     }

@@ -21,6 +21,7 @@ describe('User Requests', () => {
     const tokenObject2 = {};
     const fakeToken = '56hhhi88090990-09jjhbbbtggbll*nbkj';
     const scapeGoatToken = {};
+    const request_id = {};
 
     describe('/post - Create requests', ()=> {
         before((done) => {
@@ -49,7 +50,7 @@ describe('User Requests', () => {
                     done();
                 });
         });
-
+    
         before((done) => {
             const user = {
                 inputValue: 'scapegoat@email.com',
@@ -254,6 +255,7 @@ describe('User Requests', () => {
                     res.body.createdBy.should.have.property('handle').eql('Manchi');
                     res.body.should.have.property('status').eql('success');
                     res.body.should.have.property('message').eql('request created successfully');
+                    request_id.id = res.body.newRequest['_id'];
                     done();
                 });
         });
@@ -278,7 +280,75 @@ describe('User Requests', () => {
                     done();
                 });
         });
-
-
+        
+        describe('/GET - View user requests', () => {
+            it('it should show no requests if empty', (done) => {
+                chai.request(server)
+                    .get('/api/v1/request')
+                    .set('Authorization', tokenObject2.token)
+                    .end((err, res) => {
+                        res.should.have.status(404);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('errors');
+                        res.body.errors.should.have.property('noRequests').eql('You have not made any requests');
+                        res.body.should.have.property('status').eql('success');
+                        done();
+                    });
+            });
+            it('it should show no request if id is not found', (done) => {
+                chai.request(server)
+                    .get('/api/v1/request/5f49a9919e89172054d7dad8')
+                    .set('Authorization', tokenObject.token)
+                    .end((err, res) => {
+                        res.should.have.status(404);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('errors');
+                        res.body.errors.should.have.property('noRequest').eql('The request is not found');
+                        res.body.should.have.property('status').eql('success');
+                        done();
+                    });
+            });
+            it('it should show 500 error if id is less than 2bytes', (done) => {
+                chai.request(server)
+                    .get('/api/v1/request/5f49a9919')
+                    .set('Authorization', tokenObject.token)
+                    .end((err, res) => {
+                        res.should.have.status(500);
+                        done();
+                    });
+            });
+            it('it should show all logged-in user requests', (done) => {
+                chai.request(server)
+                    .get('/api/v1/request')
+                    .set('Authorization', tokenObject.token)
+                    .end((err, res) => {
+                        res.should.have.status(200);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('requests');
+                        res.body.requests[0].should.have.property('profile').to.be.a('string');
+                        res.body.should.have.property('status').eql('success');
+                        res.body.should.have.property('message').eql('requests fetched successfully');
+                        done();
+                    });
+            });
+        
+            it('it should show logged-in user request by id', (done) => {
+                chai.request(server)
+                    .get(`/api/v1/request/${request_id.id}`)
+                    .set('Authorization', tokenObject.token)
+                    .end((err, res) => {
+                        res.should.have.status(200);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('request');
+                        res.body.request.should.have.property('profile').to.be.a('string');
+                        res.body.should.have.property('status').eql('success');
+                        res.body.should.have.property('message').eql('request fetched successfully');
+                        done();
+                    });
+            });
+        
+        })
     });
+    
+
 });
