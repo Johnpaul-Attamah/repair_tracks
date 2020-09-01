@@ -348,6 +348,51 @@ describe('User Requests', () => {
             });
         
         })
+        describe('/patch - modify requests', () => {
+            it('it should not modify request if id is not found', (done) => {
+                let userRequest = {
+                    title: 'Request title-edit',
+                    section: 'Technical',
+                    branch: 'Abuja',
+                    location: 'Maitama',
+                    description: 'Details of problems-edited'
+                }
+                chai.request(server)
+                    .patch('/api/v1/request/5f49a9919e89172054d7dad8')
+                    .set('Authorization', tokenObject.token)
+                    .send(userRequest)
+                    .end((err, res) => {
+                        res.should.have.status(404);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('errors');
+                        res.body.errors.should.have.property('noRequest').eql('The request is not found');
+                        res.body.should.have.property('status').eql('success');
+                        done();
+                    });
+            });
+            it('it should should modify request if status is new', (done) => {
+                let userRequest = {
+                    title: 'Request title-edit',
+                    section: 'Technical',
+                    branch: 'Abuja',
+                    location: 'Maitama',
+                    description: 'Details of problems-edited'
+                }
+                chai.request(server)
+                    .patch(`/api/v1/request/${request_id.id}`)
+                    .set('Authorization', tokenObject.token)
+                    .send(userRequest)
+                    .end((err, res) => {
+                        res.should.have.status(200);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('upDatedRequest');
+                        res.body.upDatedRequest.should.have.property('profile').to.be.a('string');
+                        res.body.should.have.property('status').eql('Success');
+                        res.body.should.have.property('msg').eql('Request Updated successfully');
+                        done();
+                    });
+            });
+        });
     });
     
 
