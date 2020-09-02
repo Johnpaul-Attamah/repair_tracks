@@ -393,6 +393,32 @@ describe('User Requests', () => {
                     });
             });
         });
+        describe('/delete - remove requests', () => {
+            it('it should not remove request if id is not found', (done) => {
+                chai.request(server)
+                    .delete('/api/v1/request/5f49a9919e89172054d7dad8')
+                    .set('Authorization', tokenObject.token)
+                    .end((err, res) => {
+                        res.should.have.status(404);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('errors');
+                        res.body.errors.should.have.property('noRequest').eql('The request is not found');
+                        res.body.should.have.property('status').eql('success');
+                        done();
+                    });
+            });
+            it('it should should remove request if status is new', (done) => {
+                chai.request(server)
+                    .delete(`/api/v1/request/${request_id.id}`)
+                    .set('Authorization', tokenObject.token)                    .end((err, res) => {
+                        res.should.have.status(200);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('success').eql(true);
+                        res.body.should.have.property('message').eql('Request Deleted Successfully');
+                        done();
+                    });
+            });
+        });
     });
     
 
