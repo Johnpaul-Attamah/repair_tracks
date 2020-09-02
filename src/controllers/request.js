@@ -189,5 +189,44 @@ router.patch('/:request_id', passport.authenticate('jwt', {
     }
 });
 
+//Delete Request by id
+//Private access
+//DELETE api/v1/request/:request_id
+router.delete('/:request_id', passport.authenticate('jwt', {
+    session: false
+}), async (req, res) => {
+    const errors = {};
+    
+    try {
+        const request = await Request.findOne({
+            user: req.user.id,
+            _id: req.params.request_id
+        }).populate('User', ['name', 'avatar']);
+        if (request) {
+            if (request.status === 'new') {
+                const deletedRequest = await Request.findOneAndRemove({
+                    user: req.user.id,
+                    _id: req.params.request_id
+                });
+                return res.status(200).json({ 
+                    success: true,
+                    message: 'Request Deleted Successfully'
+                 });
+            }
+            errors.noPermission = 'You do not have permission to remove a request that is processing';
+            return res.status(401).json({
+                status: 'failed',
+                errors
+            });
+        }
+        errors.noRequest = 'The request is not found';
+        return res.status(404).json({
+            status: 'success',
+            errors
+        });
+    } catch (error) {
+        return res.status(500).json(error);
+    }
+});
 
 export default router;
