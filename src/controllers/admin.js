@@ -45,4 +45,45 @@ const router = express.Router();
         }
       });
 
+
+/**
+ * @route PUT api/v1/user/engineer
+ * @access Private Access 
+ * @description create engineer
+ ***/
+
+ router.put('/engineer/:user_id', passport.authenticate('jwt', {
+      session: false }), async (req, res) => {
+        const errors = {};
+
+        const newEngineer = { role: 'engineer' };
+        try {
+            if (req.user.role === 'admin') {
+              const user = await User.findById(req.params.user_id);
+              if (user) {
+                const engineer = await User.findByIdAndUpdate(req.params.user_id, newEngineer, {
+                   new: true
+                  });
+                  return res.status(200).json({
+                    status: 'success',
+                    message: 'user updated successfully',
+                    engineer
+                  })
+              }
+              errors.userNotFound = 'user not found';
+              return res.status(404).json({
+                status: 'success',
+                errors
+              })
+            }
+            errors.noPermission = 'Only administrators can add an engineer';
+            return res.status(401).json({
+              status: 'failed',
+              errors
+            });
+        } catch (error) {
+            return res.status(500).json(error);
+        }
+      });
+
 export default router;
