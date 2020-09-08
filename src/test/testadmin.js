@@ -261,5 +261,53 @@ describe('Administrator', () => {
                 });
         });
     });
+
+    describe("/get - view all engineers", () => {
+      it("Should not view engineer when token didn't match", (done) => {
+        chai
+          .request(server)
+          .get(`/api/v1/user/engineer/all`)
+          .set("Authorization", fakeToken)
+          .end((err, res) => {
+            res.should.have.status(401);
+            res.body.should.be.eql({});
+            done(err);
+          });
+      });
+      it("Should not view engineers when user is not admin ", (done) => {
+        chai
+          .request(server)
+          .get(`/api/v1/user/engineer/all`)
+          .set("Authorization", testUserToken.token)
+          .end((err, res) => {
+            res.should.have.status(401);
+            res.body.should.be.a("object");
+            res.body.should.have.property("errors");
+            res.body.errors.should.have
+              .property("noPermission")
+              .eql("Only administrators can view engineers");
+            res.body.should.have.property("status").eql("failed");
+            done();
+          });
+      });
+      it("Should view engineers.", (done) => {
+        chai
+          .request(server)
+          .get(`/api/v1/user/engineer/all`)
+          .set("Authorization", adminUserToken.token)
+          .end((err, res) => {
+            res.should.have.status(200);
+            res.body.should.be.a("object");
+            res.body.should.have.property("outputValue");
+            res.body.outputValue.should.be.a("array");
+            res.body.should.have
+              .property("message")
+              .eql("engineers fetched successfully");
+            res.body.should.have.property("status").eql("success");
+            done();
+          });
+      });
+    });
+    
     
 });
