@@ -88,9 +88,9 @@ const router = express.Router();
 
 
 /**
- * @route PUT api/v1/user/engineer
+ * @route GET api/v1/user/supervisor/all
  * @access Private Access 
- * @description create engineer
+ * @description get all supervisors
  ***/
 
  router.get('/supervisor/all', passport.authenticate('jwt', {
@@ -108,6 +108,7 @@ const router = express.Router();
                   });
                 }
                 const outputValue = supervisors.map(value =>( {
+                  id: value._id,
                   username: value.username,
                   name: value.name,
                   email: value.email,
@@ -121,6 +122,54 @@ const router = express.Router();
               })
           }
             errors.noPermission = 'Only administrators can view supervisors';
+            return res.status(401).json({
+              status: 'failed',
+              errors
+            });
+        } catch (error) {
+            return res.status(500).json(error);
+        }
+      });
+
+
+/**
+ * @route GET api/v1/user/supervisor/userId
+ * @access Private Access 
+ * @description get supervisor by userId
+ ***/
+
+ router.get('/supervisor/:user_id', passport.authenticate('jwt', {
+      session: false }), async (req, res) => {
+        const errors = {};
+
+        try {
+            if (req.user.role === 'admin') {
+              const supervisor = await User.findOne({ 
+                role: 'supervisor',
+                _id: req.params.user_id
+              });
+                if (!supervisor) {
+                  errors.notSupervisor = 'User is not a supervisor';
+                  return res.status(404).json({
+                    status: 'success',
+                    errors
+                  });
+                }
+                const outputValue = {
+                  id: supervisor._id,
+                  username: supervisor.username,
+                  name: supervisor.name,
+                  email: supervisor.email,
+                  avatar:supervisor.avatar,
+                  role: supervisor.role
+                }
+              return res.status(200).json({
+                status: 'success',
+                message: 'supervisor fetched successfully',
+                outputValue
+              });
+          }
+            errors.noPermission = 'Only administrators can view supervisor';
             return res.status(401).json({
               status: 'failed',
               errors
