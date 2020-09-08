@@ -220,9 +220,55 @@ const router = express.Router();
         } catch (error) {
             return res.status(500).json(error);
         }
-      });
+  });
 
 
+/**
+ * @route GET api/v1/user/supervisor/userId
+ * @access Private Access 
+ * @description get supervisor by userId
+ ***/
+
+ router.get('/engineer/:user_id', passport.authenticate('jwt', {
+      session: false }), async (req, res) => {
+        const errors = {};
+
+        try {
+            if (req.user.role === 'admin') {
+              const engineer = await User.findOne({ 
+                role: 'engineer',
+                _id: req.params.user_id
+              });
+                if (!engineer) {
+                  errors.notEngineer = 'User is not a engineer';
+                  return res.status(404).json({
+                    status: 'success',
+                    errors
+                  });
+                }
+                const outputValue = {
+                  id: engineer._id,
+                  username: engineer.username,
+                  name: engineer.name,
+                  email: engineer.email,
+                  avatar:engineer.avatar,
+                  role: engineer.role
+                }
+              return res.status(200).json({
+                status: 'success',
+                message: 'engineer fetched successfully',
+                outputValue
+              });
+          }
+            errors.noPermission = 'Only administrators can view engineer';
+            return res.status(401).json({
+              status: 'failed',
+              errors
+            });
+        } catch (error) {
+            return res.status(500).json(error);
+        }
+    });
 
 
 
