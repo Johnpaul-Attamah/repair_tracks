@@ -156,6 +156,59 @@ describe('Administrator', () => {
         });
     });
     
+    describe('/get - get supervisor by id', () => {
+        it("Should not get supervisor when token didn't match", (done) => {
+            chai.request(server)
+                .get(`/api/v1/user/supervisor/${superVisorId.id}`)
+                .set('Authorization', fakeToken)
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    res.body.should.be.eql({});
+                    done(err);
+                });
+        });
+        it("Should not view supervisor when user is not admin ", (done) => {
+            chai.request(server)
+                .get(`/api/v1/user/supervisor/${superVisorId.id}`)
+                .set('Authorization', testUserToken.token)
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('errors');
+                    res.body.errors.should.have.property('noPermission').eql('Only administrators can view supervisor');
+                    res.body.should.have.property('status').eql('failed');
+                    done();
+                });
+        });
+        it("Should not view supervisor when id is not a supervisor", (done) => {
+            chai.request(server)
+                .get(`/api/v1/user/supervisor/${engineerId.id}`)
+                .set('Authorization', adminUserToken.token)
+                .end((err, res) => {
+                    res.should.have.status(404);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('errors');
+                    res.body.errors.should.have.property('notSupervisor').eql('User is not a supervisor');
+                    res.body.should.have.property('status').eql('success');
+                    done();
+                });
+        });
+        it("Should view supervisor by id.", (done) => {
+            chai
+              .request(server)
+              .get(`/api/v1/user/supervisor/${superVisorId.id}`)
+              .set("Authorization", adminUserToken.token)
+              .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a("object");
+                res.body.should.have.property("outputValue");
+                res.body.should.have.property("message").eql("supervisor fetched successfully");
+                res.body.should.have.property("status").eql("success");
+                done();
+              });
+        });
+    });
+    
     describe('/put - create an Engineer user', () => {
         it("Should not create an Engineer when token didn't match", (done) => {
             chai.request(server)
