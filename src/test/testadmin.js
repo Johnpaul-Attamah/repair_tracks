@@ -116,6 +116,46 @@ describe('Administrator', () => {
         });
     });
     
+    describe('/get - view all supervisors', () => {
+        it("Should not view supervisor when token didn't match", (done) => {
+            chai.request(server)
+                .get(`/api/v1/user/supervisor/all`)
+                .set('Authorization', fakeToken)
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    res.body.should.be.eql({});
+                    done(err);
+                });
+        });
+        it("Should not view supervisors when user is not admin ", (done) => {
+            chai.request(server)
+                .get(`/api/v1/user/supervisor/all`)
+                .set('Authorization', testUserToken.token)
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('errors');
+                    res.body.errors.should.have.property('noPermission').eql('Only administrators can view supervisors');
+                    res.body.should.have.property('status').eql('failed');
+                    done();
+                });
+        });
+        it("Should view supervisors.", (done) => {
+            chai.request(server)
+                .get(`/api/v1/user/supervisor/all`)
+                .set('Authorization', adminUserToken.token)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('outputValue');
+                    res.body.outputValue.should.be.a('array');
+                    res.body.should.have.property('message').eql('supervisors fetched successfully');
+                    res.body.should.have.property('status').eql('success');
+                    done();
+                });
+        });
+    });
+    
     describe('/put - create an Engineer user', () => {
         it("Should not create an Engineer when token didn't match", (done) => {
             chai.request(server)
