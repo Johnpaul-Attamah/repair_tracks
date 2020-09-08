@@ -240,7 +240,7 @@ const router = express.Router();
                 _id: req.params.user_id
               });
                 if (!engineer) {
-                  errors.notEngineer = 'User is not a engineer';
+                  errors.notEngineer = 'User is not an engineer';
                   return res.status(404).json({
                     status: 'success',
                     errors
