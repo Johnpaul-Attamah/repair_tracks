@@ -215,11 +215,49 @@ export default function () {
                         done();
                     });
             });
+            it('it should register a test Engineer', (done) => {
+                let user = {
+                    username: 'testineUser',
+                    name: 'Testineer',
+                    email: 'testineer@email.com',
+                    password: 'engineEER2020',
+                    password2: 'engineEER2020'
+                }
+                chai.request(server)
+                    .post('/api/v1/auth/register')
+                    .send(user)
+                    .end((err, res) => {
+                        res.should.have.status(201);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('message').eql('User Created Successfully');
+                        res.body.should.have.property('status').eql('Success');
+                        done();
+                    });
+            });
             it('it should register a supervisor', (done) => {
                 let user = {
                     username: 'supervisor',
                     name: 'Oga Supervisor',
                     email: 'supervisor@email.com',
+                    password: 'superVISE2020',
+                    password2: 'superVISE2020'
+                }
+                chai.request(server)
+                    .post('/api/v1/auth/register')
+                    .send(user)
+                    .end((err, res) => {
+                        res.should.have.status(201);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('message').eql('User Created Successfully');
+                        res.body.should.have.property('status').eql('Success');
+                        done();
+                    });
+            });
+            it('it should register a test supervisor', (done) => {
+                let user = {
+                    username: 'testervisor',
+                    name: 'Oga Testervisor',
+                    email: 'testervisor@email.com',
                     password: 'superVISE2020',
                     password2: 'superVISE2020'
                 }
