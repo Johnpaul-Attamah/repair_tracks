@@ -162,7 +162,7 @@ const router = express.Router();
                       newUser
                     })
                 }
-                errors.notSupervsor = 'User is not a supervisor';
+                errors.notSupervisor = 'User is not a supervisor';
                 return res.status(400).json({
                   status: 'failed',
                   errors
