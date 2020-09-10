@@ -138,6 +138,55 @@ const router = express.Router();
     });
 
 /**
+ * @route PUT api/v1/user/supervisor/demote/user_id
+ * @access Private Access 
+ * @description demote supervisor
+ ***/
+
+ router.put('/supervisor/demote/:user_id', passport.authenticate('jwt', {
+      session: false }), async (req, res) => {
+        const errors = {};
+
+        const demotedSupervisor = { role: 'basic' };
+        try {
+            if (req.user.role === 'admin') {
+              const user = await User.findById(req.params.user_id);
+              if (user) {
+                if (user.role == 'supervisor') {
+                  const newUser = await User.findByIdAndUpdate(req.params.user_id, demotedSupervisor, {
+                     new: true
+                    });
+                    return res.status(200).json({
+                      status: 'success',
+                      message: 'supervisor demoted successfully',
+                      newUser
+                    })
+                }
+                errors.notSupervsor = 'User is not a supervisor';
+                return res.status(400).json({
+                  status: 'failed',
+                  errors
+                })
+              }
+              errors.userNotFound = 'user not found';
+              return res.status(404).json({
+                status: 'success',
+                errors
+              })
+            }
+            errors.noPermission = 'Only administrators can demote a supervisor';
+            return res.status(401).json({
+              status: 'failed',
+              errors
+            });
+        } catch (error) {
+            return res.status(500).json(error);
+        }
+      });
+
+
+
+/**
  * @route PUT api/v1/user/engineer
  * @access Private Access 
  * @description create engineer
