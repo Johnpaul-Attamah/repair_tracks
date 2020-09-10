@@ -309,5 +309,66 @@ describe('Administrator', () => {
       });
     });
     
+    describe("/get - get engineer by id", () => {
+      it("Should not get engineer when token didn't match", (done) => {
+        chai
+          .request(server)
+          .get(`/api/v1/user/engineer/${engineerId.id}`)
+          .set("Authorization", fakeToken)
+          .end((err, res) => {
+            res.should.have.status(401);
+            res.body.should.be.eql({});
+            done(err);
+          });
+      });
+      it("Should not view engineer when user is not admin ", (done) => {
+        chai
+          .request(server)
+          .get(`/api/v1/user/engineer/${engineerId.id}`)
+          .set("Authorization", testUserToken.token)
+          .end((err, res) => {
+            res.should.have.status(401);
+            res.body.should.be.a("object");
+            res.body.should.have.property("errors");
+            res.body.errors.should.have
+              .property("noPermission")
+              .eql("Only administrators can view engineer");
+            res.body.should.have.property("status").eql("failed");
+            done();
+          });
+      });
+      it("Should not view engineer when id is not an engineer", (done) => {
+        chai
+          .request(server)
+          .get(`/api/v1/user/engineer/${superVisorId.id}`)
+          .set("Authorization", adminUserToken.token)
+          .end((err, res) => {
+            res.should.have.status(404);
+            res.body.should.be.a("object");
+            res.body.should.have.property("errors");
+            res.body.errors.should.have
+              .property("notEngineer")
+              .eql("User is not an engineer");
+            res.body.should.have.property("status").eql("success");
+            done();
+          });
+      });
+      it("Should view engineer by id.", (done) => {
+        chai
+          .request(server)
+          .get(`/api/v1/user/engineer/${engineerId.id}`)
+          .set("Authorization", adminUserToken.token)
+          .end((err, res) => {
+            res.should.have.status(200);
+            res.body.should.be.a("object");
+            res.body.should.have.property("outputValue");
+            res.body.should.have
+              .property("message")
+              .eql("engineer fetched successfully");
+            res.body.should.have.property("status").eql("success");
+            done();
+          });
+      });
+    });
     
 });
