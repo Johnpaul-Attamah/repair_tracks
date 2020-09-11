@@ -496,5 +496,84 @@ describe('Administrator', () => {
           });
       });
     });
+
+    describe("/put - demote engineer user", () => {
+      it("Should not remove engineer when token didn't match", (done) => {
+        chai
+          .request(server)
+          .put(`/api/v1/user/engineer/demote/${engineerId.id}`)
+          .set("Authorization", fakeToken)
+          .end((err, res) => {
+            res.should.have.status(401);
+            res.body.should.be.eql({});
+            done(err);
+          });
+      });
+      it("Should not remove engineer when user is not admin ", (done) => {
+        chai
+          .request(server)
+          .put(`/api/v1/user/engineer/demote/${engineerId.id}`)
+          .set("Authorization", testUserToken.token)
+          .end((err, res) => {
+            res.should.have.status(401);
+            res.body.should.be.a("object");
+            res.body.should.have.property("errors");
+            res.body.errors.should.have
+              .property("noPermission")
+              .eql("Only administrators can demote an engineer");
+            res.body.should.have.property("status").eql("failed");
+            done();
+          });
+      });
+      it("Should not remove engineer when user id is not found", (done) => {
+        chai
+          .request(server)
+          .put(`/api/v1/user/engineer/demote/${testUserId.id}`)
+          .set("Authorization", adminUserToken.token)
+          .end((err, res) => {
+            res.should.have.status(404);
+            res.body.should.be.a("object");
+            res.body.should.have.property("errors");
+            res.body.errors.should.have
+              .property("userNotFound")
+              .eql("user not found");
+            res.body.should.have.property("status").eql("success");
+            done();
+          });
+      });
+      it("Should not remove engineer when user is not a engineer", (done) => {
+        chai
+          .request(server)
+          .put(`/api/v1/user/engineer/demote/${superVisorId.id}`)
+          .set("Authorization", adminUserToken.token)
+          .end((err, res) => {
+            res.should.have.status(400);
+            res.body.should.be.a("object");
+            res.body.should.have.property("errors");
+            res.body.errors.should.have
+              .property("notEngineer")
+              .eql("User is not an engineer");
+            res.body.should.have.property("status").eql("failed");
+            done();
+          });
+      });
+      it("Should remove a engineer.", (done) => {
+        chai
+          .request(server)
+          .put(`/api/v1/user/engineer/demote/${testineerId.id}`)
+          .set("Authorization", adminUserToken.token)
+          .end((err, res) => {
+            res.should.have.status(200);
+            res.body.should.be.a("object");
+            res.body.should.have.property("newUser");
+            res.body.newUser.should.have.property("role").eql("basic");
+            res.body.should.have
+              .property("message")
+              .eql("engineer demoted successfully");
+            res.body.should.have.property("status").eql("success");
+            done();
+          });
+      });
+    });
     
 });

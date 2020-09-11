@@ -348,7 +348,7 @@ router.put('/engineer/demote/:user_id', passport.authenticate('jwt', {
             newUser
           })
         }
-        errors.notengineer = 'User is not an engineer';
+        errors.notEngineer = 'User is not an engineer';
         return res.status(400).json({
           status: 'failed',
           errors
