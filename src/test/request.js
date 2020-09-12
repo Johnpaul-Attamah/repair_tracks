@@ -234,9 +234,34 @@ describe('User Requests', () => {
                 });
         });
 
-        it('should create request for user', (done) => {
+        it('should create request to be deleted', (done) => {
             const userRequest = {
                 title: 'Request title',
+                section: 'Technical',
+                branch: 'Abuja',
+                location: 'Maitama',
+                description: 'Details of problems'   
+            };
+            chai.request(server)
+                .post('/api/v1/request')
+                .set('Authorization', tokenObject.token)
+                .send(userRequest)
+                .end((err, res) => {
+                    res.should.have.status(201);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('newRequest');
+                    res.body.should.have.property('createdBy');
+                    res.body.newRequest.should.have.property('rcode').to.be.a('string');
+                    res.body.createdBy.should.have.property('handle').eql('Manchi');
+                    res.body.should.have.property('status').eql('success');
+                    res.body.should.have.property('message').eql('request created successfully');
+                    request_id.id = res.body.newRequest['_id'];
+                    done();
+                });
+        });
+        it('should create request for user', (done) => {
+            const userRequest = {
+                title: 'Request2 title',
                 section: 'Technical',
                 branch: 'Abuja',
                 location: 'Maitama',
