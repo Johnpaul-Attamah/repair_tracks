@@ -13,6 +13,7 @@ describe('Supervisor', () => {
 
     const supervisorToken = {};
     const fakeToken = '56hhhi88090990-09jjhbbbtggbll*nbkj';
+    const testRequestId = {id: '5f50ee81ec72c9148cafe77d'};
     const testUserToken = {};
     const requestId= {};
 
@@ -152,5 +153,274 @@ describe('Supervisor', () => {
         });
 
     })
+
+    describe('/put - supervisor mark status as started', () => {
+        it("Should not update status when token didn't match", (done) => {
+            chai.request(server)
+                .put(`/api/v1/supervisor/request/start/${requestId.id}`)
+                .set('Authorization', fakeToken)
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    res.body.should.be.eql({});
+                    done(err);
+                });
+        });
+        it("Should not update status when user is not a supervisor ", (done) => {
+            chai.request(server)
+                .put(`/api/v1/supervisor/request/start/${requestId.id}`)
+                .set('Authorization', testUserToken.token)
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('errors');
+                    res.body.errors.should.have.property('noPermission').eql('Only Supervisors can Update request Status');
+                    res.body.should.have.property('status').eql('failed');
+                    done();
+                });
+        });
+        it("Should not update when request id is not found", (done) => {
+            chai.request(server)
+                .put(`/api/v1/supervisor/request/start/${testRequestId.id}`)
+                .set('Authorization', supervisorToken.token)
+                .end((err, res) => {
+                    res.should.have.status(404);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('errors');
+                    res.body.errors.should.have.property('noRequest').eql('The request is not found');
+                    res.body.should.have.property('status').eql('success');
+                    done();
+                });
+        });
+        it("Should update request status to started.", (done) => {
+            chai.request(server)
+                .put(`/api/v1/supervisor/request/start/${requestId.id}`)
+                .set('Authorization', supervisorToken.token)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('upDatedRequest');
+                    res.body.upDatedRequest.should.have.property('status').eql('started');
+                    res.body.should.have.property('msg').eql('Request Updated successfully');
+                    res.body.should.have.property('status').eql('Success');
+                    done();
+                });
+        });
+        
+    });
+
+    describe('/put - supervisor mark status as in-progress', () => {
+        it("Should not update status when token didn't match", (done) => {
+            chai.request(server)
+                .put(`/api/v1/supervisor/request/inprogress/${requestId.id}`)
+                .set('Authorization', fakeToken)
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    res.body.should.be.eql({});
+                    done(err);
+                });
+        });
+        it("Should not update status when user is not a supervisor ", (done) => {
+            chai.request(server)
+                .put(`/api/v1/supervisor/request/inprogress/${requestId.id}`)
+                .set('Authorization', testUserToken.token)
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('errors');
+                    res.body.errors.should.have.property('noPermission').eql('Only Supervisors can Update request Status');
+                    res.body.should.have.property('status').eql('failed');
+                    done();
+                });
+        });
+        it("Should not update when request id is not found", (done) => {
+            chai.request(server)
+                .put(`/api/v1/supervisor/request/inprogress/${testRequestId.id}`)
+                .set('Authorization', supervisorToken.token)
+                .end((err, res) => {
+                    res.should.have.status(404);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('errors');
+                    res.body.errors.should.have.property('noRequest').eql('The request is not found');
+                    res.body.should.have.property('status').eql('success');
+                    done();
+                });
+        });
+        it("Should update request status to in-progress.", (done) => {
+            chai.request(server)
+                .put(`/api/v1/supervisor/request/inprogress/${requestId.id}`)
+                .set('Authorization', supervisorToken.token)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('upDatedRequest');
+                    res.body.upDatedRequest.should.have.property('status').eql('in-progress');
+                    res.body.should.have.property('msg').eql('Request Updated successfully');
+                    res.body.should.have.property('status').eql('Success');
+                    done();
+                });
+        });
+        
+    });
+    
+    describe('/put - supervisor mark status as processing...', () => {
+        it("Should not update status when token didn't match", (done) => {
+            chai.request(server)
+                .put(`/api/v1/supervisor/request/processing/${requestId.id}`)
+                .set('Authorization', fakeToken)
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    res.body.should.be.eql({});
+                    done(err);
+                });
+        });
+        it("Should not update status when user is not a supervisor ", (done) => {
+            chai.request(server)
+                .put(`/api/v1/supervisor/request/processing/${requestId.id}`)
+                .set('Authorization', testUserToken.token)
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('errors');
+                    res.body.errors.should.have.property('noPermission').eql('Only Supervisors can Update request Status');
+                    res.body.should.have.property('status').eql('failed');
+                    done();
+                });
+        });
+        it("Should not update when request id is not found", (done) => {
+            chai.request(server)
+                .put(`/api/v1/supervisor/request/processing/${testRequestId.id}`)
+                .set('Authorization', supervisorToken.token)
+                .end((err, res) => {
+                    res.should.have.status(404);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('errors');
+                    res.body.errors.should.have.property('noRequest').eql('The request is not found');
+                    res.body.should.have.property('status').eql('success');
+                    done();
+                });
+        });
+        it("Should update request status to processing...", (done) => {
+            chai.request(server)
+                .put(`/api/v1/supervisor/request/processing/${requestId.id}`)
+                .set('Authorization', supervisorToken.token)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('upDatedRequest');
+                    res.body.upDatedRequest.should.have.property('status').eql('processing...');
+                    res.body.should.have.property('msg').eql('Request Updated successfully');
+                    res.body.should.have.property('status').eql('Success');
+                    done();
+                });
+        });
+        
+    });
+
+    describe('/put - supervisor mark status as completed', () => {
+        it("Should not update status when token didn't match", (done) => {
+            chai.request(server)
+                .put(`/api/v1/supervisor/request/completed/${requestId.id}`)
+                .set('Authorization', fakeToken)
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    res.body.should.be.eql({});
+                    done(err);
+                });
+        });
+        it("Should not update status when user is not a supervisor ", (done) => {
+            chai.request(server)
+                .put(`/api/v1/supervisor/request/completed/${requestId.id}`)
+                .set('Authorization', testUserToken.token)
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('errors');
+                    res.body.errors.should.have.property('noPermission').eql('Only Supervisors can Update request Status');
+                    res.body.should.have.property('status').eql('failed');
+                    done();
+                });
+        });
+        it("Should not update when request id is not found", (done) => {
+            chai.request(server)
+                .put(`/api/v1/supervisor/request/completed/${testRequestId.id}`)
+                .set('Authorization', supervisorToken.token)
+                .end((err, res) => {
+                    res.should.have.status(404);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('errors');
+                    res.body.errors.should.have.property('noRequest').eql('The request is not found');
+                    res.body.should.have.property('status').eql('success');
+                    done();
+                });
+        });
+        it("Should update request status to completed.", (done) => {
+            chai.request(server)
+                .put(`/api/v1/supervisor/request/completed/${requestId.id}`)
+                .set('Authorization', supervisorToken.token)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('upDatedRequest');
+                    res.body.upDatedRequest.should.have.property('status').eql('completed');
+                    res.body.should.have.property('msg').eql('Request Updated successfully');
+                    res.body.should.have.property('status').eql('Success');
+                    done();
+                });
+        });
+        
+    });
+    describe('/put - supervisor mark status as rejected', () => {
+        it("Should not update status when token didn't match", (done) => {
+            chai.request(server)
+                .put(`/api/v1/supervisor/request/cancel/${requestId.id}`)
+                .set('Authorization', fakeToken)
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    res.body.should.be.eql({});
+                    done(err);
+                });
+        });
+        it("Should not update status when user is not a supervisor ", (done) => {
+            chai.request(server)
+                .put(`/api/v1/supervisor/request/cancel/${requestId.id}`)
+                .set('Authorization', testUserToken.token)
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('errors');
+                    res.body.errors.should.have.property('noPermission').eql('Only Supervisors can Update request Status');
+                    res.body.should.have.property('status').eql('failed');
+                    done();
+                });
+        });
+        it("Should not update when request id is not found", (done) => {
+            chai.request(server)
+                .put(`/api/v1/supervisor/request/cancel/${testRequestId.id}`)
+                .set('Authorization', supervisorToken.token)
+                .end((err, res) => {
+                    res.should.have.status(404);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('errors');
+                    res.body.errors.should.have.property('noRequest').eql('The request is not found');
+                    res.body.should.have.property('status').eql('success');
+                    done();
+                });
+        });
+        it("Should update request status to rejected.", (done) => {
+            chai.request(server)
+                .put(`/api/v1/supervisor/request/cancel/${requestId.id}`)
+                .set('Authorization', supervisorToken.token)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('upDatedRequest');
+                    res.body.upDatedRequest.should.have.property('status').eql('rejected');
+                    res.body.should.have.property('msg').eql('Request Updated successfully');
+                    res.body.should.have.property('status').eql('Success');
+                    done();
+                });
+        });
+        
+    });
 
 })
