@@ -101,5 +101,261 @@ router.get('/request/:request_id', passport.authenticate('jwt', {
     }
 });
 
+/**
+ * @description update request set status to started
+ * @access private access
+ * PATCH api/v1/supervisor/request/start/:request_id
+ * */
+router.put('/request/start/:request_id', passport.authenticate('jwt', {
+    session: false
+}), async (req, res) => {
+    const errors = {};
+
+    const requestFields = {};
+
+    try {
+        if (req.user.role === 'supervisor') {
+            const request = await Request.findOne({
+                _id: req.params.request_id
+            }).populate('User', ['name', 'avatar']);
+            if (request) {
+                    requestFields.status = 'started';
+                    requestFields.updated_at = Date.now();
+    
+                    const upDatedRequest = await Request.findOneAndUpdate({
+                        _id: req.params.request_id
+                    }, {
+                        $set: requestFields
+                    }, {
+                        new: true
+                    });
+    
+                    return res.status(200).json({
+                        status: 'Success',
+                        msg: 'Request Updated successfully',
+                        upDatedRequest
+                    });
+            }
+            errors.noRequest = 'The request is not found';
+            return res.status(404).json({
+                status: 'success',
+                errors
+            });
+        }
+        errors.noPermission = 'Only Supervisors can Update request Status';
+        return res.status(401).json({
+            status: 'failed',
+            errors
+        });
+    } catch (error) {
+        return res.status(500).json(error);
+    }
+});
+
+/**
+ * @description update request set status to started
+ * @access private access
+ * PATCH api/v1/supervisor/request/inprogress/:request_id
+ * */
+router.put('/request/inprogress/:request_id', passport.authenticate('jwt', {
+    session: false
+}), async (req, res) => {
+    const errors = {};
+
+    const requestFields = {};
+
+    try {
+        if (req.user.role === 'supervisor') {
+            const request = await Request.findOne({
+                _id: req.params.request_id
+            }).populate('User', ['name', 'avatar']);
+            if (request) {
+                    requestFields.status = 'in-progress';
+                    requestFields.updated_at = Date.now();
+    
+                    const upDatedRequest = await Request.findOneAndUpdate({
+                        _id: req.params.request_id
+                    }, {
+                        $set: requestFields
+                    }, {
+                        new: true
+                    });
+    
+                    return res.status(200).json({
+                        status: 'Success',
+                        msg: 'Request Updated successfully',
+                        upDatedRequest
+                    });
+            }
+            errors.noRequest = 'The request is not found';
+            return res.status(404).json({
+                status: 'success',
+                errors
+            });
+        }
+        errors.noPermission = 'Only Supervisors can Update request Status';
+        return res.status(401).json({
+            status: 'failed',
+            errors
+        });
+    } catch (error) {
+        return res.status(500).json(error);
+    }
+});
+
+/**
+ * @description update request set status to started
+ * @access private access
+ * PATCH api/v1/supervisor/request/processing/:request_id
+ * */
+router.put('/request/processing/:request_id', passport.authenticate('jwt', {
+    session: false
+}), async (req, res) => {
+    const errors = {};
+
+    const requestFields = {};
+
+    try {
+        if (req.user.role === 'supervisor') {
+            const request = await Request.findOne({
+                _id: req.params.request_id
+            }).populate('User', ['name', 'avatar']);
+            if (request) {
+                    requestFields.status = 'processing...';
+                    requestFields.updated_at = Date.now();
+    
+                    const upDatedRequest = await Request.findOneAndUpdate({
+                        _id: req.params.request_id
+                    }, {
+                        $set: requestFields
+                    }, {
+                        new: true
+                    });
+    
+                    return res.status(200).json({
+                        status: 'Success',
+                        msg: 'Request Updated successfully',
+                        upDatedRequest
+                    });
+            }
+            errors.noRequest = 'The request is not found';
+            return res.status(404).json({
+                status: 'success',
+                errors
+            });
+        }
+        errors.noPermission = 'Only Supervisors can Update request Status';
+        return res.status(401).json({
+            status: 'failed',
+            errors
+        });
+    } catch (error) {
+        return res.status(500).json(error);
+    }
+});
+
+/**
+ * @description update request set status to started
+ * @access private access
+ * PATCH api/v1/supervisor/request/completed/:request_id
+ * */
+router.put('/request/completed/:request_id', passport.authenticate('jwt', {
+    session: false
+}), async (req, res) => {
+    const errors = {};
+
+    const requestFields = {};
+
+    try {
+        if (req.user.role === 'supervisor') {
+            const request = await Request.findOne({
+                _id: req.params.request_id
+            }).populate('User', ['name', 'avatar']);
+            if (request) {
+                    requestFields.status = 'completed';
+                    requestFields.updated_at = Date.now();
+    
+                    const upDatedRequest = await Request.findOneAndUpdate({
+                        _id: req.params.request_id
+                    }, {
+                        $set: requestFields
+                    }, {
+                        new: true
+                    });
+    
+                    return res.status(200).json({
+                        status: 'Success',
+                        msg: 'Request Updated successfully',
+                        upDatedRequest
+                    });
+            }
+            errors.noRequest = 'The request is not found';
+            return res.status(404).json({
+                status: 'success',
+                errors
+            });
+        }
+        errors.noPermission = 'Only Supervisors can Update request Status';
+        return res.status(401).json({
+            status: 'failed',
+            errors
+        });
+    } catch (error) {
+        return res.status(500).json(error);
+    }
+});
+
+/**
+ * @description update request set status to started
+ * @access private access
+ * PATCH api/v1/supervisor/request/cancel/:request_id
+ * */
+router.put('/request/cancel/:request_id', passport.authenticate('jwt', {
+    session: false
+}), async (req, res) => {
+    const errors = {};
+
+    const requestFields = {};
+
+    try {
+        if (req.user.role === 'supervisor') {
+            const request = await Request.findOne({
+                _id: req.params.request_id
+            }).populate('User', ['name', 'avatar']);
+            if (request) {
+                    requestFields.status = 'rejected';
+                    requestFields.updated_at = Date.now();
+    
+                    const upDatedRequest = await Request.findOneAndUpdate({
+                        _id: req.params.request_id
+                    }, {
+                        $set: requestFields
+                    }, {
+                        new: true
+                    });
+    
+                    return res.status(200).json({
+                        status: 'Success',
+                        msg: 'Request Updated successfully',
+                        upDatedRequest
+                    });
+            }
+            errors.noRequest = 'The request is not found';
+            return res.status(404).json({
+                status: 'success',
+                errors
+            });
+        }
+        errors.noPermission = 'Only Supervisors can Update request Status';
+        return res.status(401).json({
+            status: 'failed',
+            errors
+        });
+    } catch (error) {
+        return res.status(500).json(error);
+    }
+});
+
+
 
 export default router;
