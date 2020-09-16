@@ -44,7 +44,16 @@ router.post('/', passport.authenticate('jwt', {
 
             createdBy.handle = profile.handle;
             createdBy.position = profile.status;
-            
+
+            //Check if request exists
+            const request = await Request.findOne({ title: requestFields.title });
+            if (request) {
+                errors.requestExists = 'Request already exists.';
+                return res.status(400).json({
+                    status: 'failed',
+                    errors
+                })
+            }
             const newRequest = await new Request(requestFields).save();
             return res.status(201).json({
                 status: 'success',
