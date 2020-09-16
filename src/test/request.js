@@ -1,7 +1,6 @@
 import chai from 'chai';
 import chaiHttp from 'chai-http';
 import server from '../server';
-import userProfile from './profile';
 import Request from '../models/Request';
 
 
@@ -284,6 +283,27 @@ describe('User Requests', () => {
                     done();
                 });
         });
+        it('should not create request if request exists', (done) => {
+            const userRequest = {
+                title: 'Request2 title',
+                section: 'Technical',
+                branch: 'Abuja',
+                location: 'Maitama',
+                description: 'Details of problems'   
+            };
+            chai.request(server)
+                .post('/api/v1/request')
+                .set('Authorization', tokenObject.token)
+                .send(userRequest)
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('errors');
+                    res.body.errors.should.have.property('requestExists').eql('Request already exists.');
+                    res.body.should.have.property('status').eql('failed');
+                    done();
+                });
+        });
         it('it should not create a request when user have no profile', (done) => {
             let userRequest = {
                 title: 'Request title',
@@ -435,7 +455,8 @@ describe('User Requests', () => {
             it('it should should remove request if status is new', (done) => {
                 chai.request(server)
                     .delete(`/api/v1/request/${request_id.id}`)
-                    .set('Authorization', tokenObject.token)                    .end((err, res) => {
+                    .set('Authorization', tokenObject.token)                    
+                    .end((err, res) => {
                         res.should.have.status(200);
                         res.body.should.be.a('object');
                         res.body.should.have.property('success').eql(true);
