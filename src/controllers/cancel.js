@@ -155,6 +155,45 @@ router.get('/:cancel_id', passport.authenticate('jwt', {
     }
 });
 
+//Delete Cancel Request by id
+//Private access
+//DELETE api/v1/cancel/:cancel_id
+router.delete('/:cancel_id', passport.authenticate('jwt', {
+    session: false
+}), async (req, res) => {
+    const errors = {};
+
+    try {
+        const cancelRequest = await Cancel.findOne({
+            user: req.user.id,
+            _id: req.params.cancel_id
+        }).populate('User', ['name', 'avatar']);
+        if (cancelRequest) {
+            if (cancelRequest.status === 'new') {
+                const deletedCancelRequest = await Cancel.findOneAndRemove({
+                    user: req.user.id,
+                    _id: req.params.cancel_id
+                });
+                return res.status(200).json({
+                    success: true,
+                    message: 'Cancel request Deleted Successfully'
+                });
+            }
+            errors.noPermission = 'You do not have permission to cancel a request that is processing';
+            return res.status(401).json({
+                status: 'failed',
+                errors
+            });
+        }
+        errors.noRequest = 'The cancel request is not found';
+        return res.status(404).json({
+            status: 'success',
+            errors
+        });
+    } catch (error) {
+        return res.status(500).json(error);
+    }
+});
 
 
 export default router;
