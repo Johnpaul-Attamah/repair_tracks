@@ -289,4 +289,42 @@ describe('User Cancel request', () => {
 
     })
 
+    describe('/delete - remove cancel requests', () => {
+        it("Should not delete cancel request when token didn't match", (done) => {
+            chai.request(server)
+                .delete(`/api/v1/cancel/${cancel_id2.id}`)
+                .set('Authorization', fakeToken)
+                .end((err, req) => {
+                    req.should.have.status(401);
+                    req.body.should.be.eql({});
+                    done(err);
+                });
+        });
+        it('it should not remove cancel request if id is not found', (done) => {
+            chai.request(server)
+                .delete('/api/v1/cancel/5f49a9919e89172054d7dad8')
+                .set('Authorization', tokenObject.token)
+                .end((err, res) => {
+                    res.should.have.status(404);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('errors');
+                    res.body.errors.should.have.property('noRequest').eql('The cancel request is not found');
+                    res.body.should.have.property('status').eql('success');
+                    done();
+                });
+        });
+        it('it should should remove cancel request if status is new', (done) => {
+            chai.request(server)
+                .delete(`/api/v1/cancel/${cancel_id2.id}`)
+                .set('Authorization', tokenObject.token)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('success').eql(true);
+                    res.body.should.have.property('message').eql('Cancel request Deleted Successfully');
+                    done();
+                });
+        });
+    });
+
 })
