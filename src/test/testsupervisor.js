@@ -16,6 +16,7 @@ describe('Supervisor', () => {
     const testRequestId = {id: '5f50ee81ec72c9148cafe77d'};
     const testUserToken = {};
     const requestId= {};
+    const cancelId= {};
 
     before((done) => {
         const supervisor = {
@@ -115,7 +116,7 @@ describe('Supervisor', () => {
         });
         it('it should show no request if id is not found', (done) => {
             chai.request(server)
-                .get('/api/v1/request/5f49a9919e89172054d7dad8')
+                .get('/api/v1/supervisor/request/5f49a9919e89172054d7dad8')
                 .set('Authorization', supervisorToken.token)
                 .end((err, res) => {
                     res.should.have.status(404);
@@ -128,7 +129,7 @@ describe('Supervisor', () => {
         });
         it('it should show 500 error if id is less than 2bytes', (done) => {
             chai.request(server)
-                .get('/api/v1/request/5f49a9919')
+                .get('/api/v1/supervisor/request/5f49a9919')
                 .set('Authorization', supervisorToken.token)
                 .end((err, res) => {
                     res.should.have.status(500);
@@ -422,5 +423,115 @@ describe('Supervisor', () => {
         });
         
     });
+
+    describe('GET - view all cancel requests', () => {
+        it("Should not get cancel requests when token didn't match", (done) => {
+            chai.request(server)
+                .get(`/api/v1/supervisor/request/cancel`)
+                .set('Authorization', fakeToken)
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    res.body.should.be.eql({});
+                    done(err);
+                });
+        });
+        it("Should not get all cancel requests when user is not a supervisor ", (done) => {
+            chai.request(server)
+                .get(`/api/v1/supervisor/request/cancel/all`)
+                .set('Authorization', testUserToken.token)
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('errors');
+                    res.body.errors.should.have.property('noPermission').eql('Only supervisors can view all cancel requests');
+                    res.body.should.have.property('status').eql('failed');
+                    done();
+                });
+        });
+        it('it should show all cancel requests', (done) => {
+            chai.request(server)
+                .get('/api/v1/supervisor/request/cancel/all')
+                .set('Authorization', supervisorToken.token)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('allCancelRequests');
+                    res.body.allCancelRequests[0].should.have.property('createdBy').to.be.a('string');
+                    res.body.allCancelRequests[0].should.have.property('section').to.be.a('string');
+                    res.body.allCancelRequests[0].should.have.property('rcode').to.be.a('string');
+                    res.body.allCancelRequests[0].should.have.property('cancelled').to.be.a('object');
+                    res.body.should.have.property('status').eql('success');
+                    res.body.should.have.property('message').eql('requests fetched successfully');
+                    cancelId.id = res.body.allCancelRequests[0].cancelled._id;
+                    done();
+                });
+        });
+
+    });
+
+    describe('GET - View single request', () => {
+        it("Should not get a cancel request when token didn't match", (done) => {
+            chai.request(server)
+                .get(`/api/v1/supervisor/request/cancel/${cancelId.id}`)
+                .set('Authorization', fakeToken)
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    res.body.should.be.eql({});
+                    done(err);
+                });
+        });
+        it("Should not get a cancel request when user is not a supervisor ", (done) => {
+            chai.request(server)
+                .get(`/api/v1/supervisor/request/cancel/${cancelId.id}`)
+                .set('Authorization', testUserToken.token)
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('errors');
+                    res.body.errors.should.have.property('noPermission').eql('Only supervisors can view a cancel request');
+                    res.body.should.have.property('status').eql('failed');
+                    done();
+                });
+        });
+        it('it should show no cancel request if id is not found', (done) => {
+            chai.request(server)
+                .get('/api/v1/supervisor/request/cancel/5f49a9919e89172054d7dad8')
+                .set('Authorization', supervisorToken.token)
+                .end((err, res) => {
+                    res.should.have.status(404);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('errors');
+                    res.body.errors.should.have.property('noRequest').eql('The request is not found');
+                    res.body.should.have.property('status').eql('success');
+                    done();
+                });
+        });
+        it('it should show 500 error if id is less than 2bytes', (done) => {
+            chai.request(server)
+                .get('/api/v1/supervisor/request/cancel/ca5f49a9919')
+                .set('Authorization', supervisorToken.token)
+                .end((err, res) => {
+                    res.should.have.status(500);
+                    done();
+                });
+        });
+        it('it should show a cancel request by id', (done) => {
+            chai.request(server)
+                .get(`/api/v1/supervisor/request/cancel/${cancelId.id}`)
+                .set('Authorization', supervisorToken.token)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('createdBy').to.be.a('string');
+                    res.body.should.have.property('section').to.be.a('string');
+                    res.body.should.have.property('rcode').to.be.a('string');
+                    res.body.should.have.property('cancelledRequest').to.be.a('object');
+                    res.body.should.have.property('status').eql('success');
+                    res.body.should.have.property('message').eql('cancel request fetched successfully');
+                    done();
+                });
+        });
+
+    })
 
 })

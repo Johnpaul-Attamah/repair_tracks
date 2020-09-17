@@ -433,7 +433,7 @@ router.get('/request/cancel/:cancel_id', passport.authenticate('jwt', {
                 let request = await Request.findById(cancelledRequest.request);
                 return res.status(200).json({
                     status: 'success',
-                    message: 'cancelledRequest fetched successfully',
+                    message: 'cancel request fetched successfully',
                     createdBy: user.name,
                     section: profile.section,
                     rcode: request.rcode,
