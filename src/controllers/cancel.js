@@ -86,5 +86,75 @@ router.post('/:request_id', passport.authenticate('jwt', {
     }
 });
 
+/**
+ * @route GET api/v1/cancel 
+ * @access Private Access 
+ * @description get all cancel request by user
+ ***/
+router.get('/', passport.authenticate('jwt', {
+    session: false
+}), async (req, res) => {
+    const errors = {};
+    try {
+        const cancelRequests = await Cancel.find({
+                user: req.user.id
+            })
+            .populate('User', ['name', 'avatar']);
+
+        if (cancelRequests.length) {
+            return res.status(200).json({
+                status: 'success',
+                message: 'requests fetched successfully',
+                cancelRequests
+            });
+        }
+        errors.noCancelRequests = 'You have not made any cancel requests'
+        return res.status(404).json({
+            status: 'success',
+            errors
+        });
+    } catch (error) {
+        return res.status(500).json(error);
+    }
+
+});
+
+/**
+ * @description GET cancel request by cancel_id
+ * @access private access
+ * GET api/v1/request/:cancel_id
+ * */
+router.get('/:cancel_id', passport.authenticate('jwt', {
+    session: false
+}), async (req, res) => {
+    const errors = {};
+    try {
+        const cancelRequest = await Cancel.findOne({
+            user: req.user.id,
+            _id: req.params.cancel_id,
+        }).populate('User', ['name', 'avatar']);
+        if (cancelRequest) {
+            const myRequest = await Request.findOne({
+                user: req.user.id,
+                _id: cancelRequest.request
+            });
+            return res.status(200).json({
+                status: 'success',
+                message: 'request fetched successfully',
+                rcode: myRequest.rcode,
+                cancelRequest
+            });
+        }
+        errors.noRequest = 'The request is not found';
+        return res.status(404).json({
+            status: 'success',
+            errors
+        });
+    } catch (error) {
+        return res.status(500).json(error);
+    }
+});
+
+
 
 export default router;
