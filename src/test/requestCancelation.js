@@ -20,6 +20,8 @@ describe('User Cancel request', () => {
     const fakeToken = '56hhhi88090990-09jjhbbbtggbll*nbkj';
     const request_id = {};
     const request_id2 = {};
+    const cancel_id = {};
+    const cancel_id2 = {};
 
     describe('post-make a cancel request', () => {
         before((done) => {
@@ -140,6 +142,7 @@ describe('User Cancel request', () => {
                     res.body.createdBy.should.have.property('handle').eql('Manchi');
                     res.body.should.have.property('status').eql('success');
                     res.body.should.have.property('message').eql('cancel request submitted successfully');
+                    cancel_id2.id = res.body.cancelRequest['_id'];
                     done();
                 });
         });
@@ -161,6 +164,7 @@ describe('User Cancel request', () => {
                     res.body.createdBy.should.have.property('handle').eql('Manchi');
                     res.body.should.have.property('status').eql('success');
                     res.body.should.have.property('message').eql('cancel request submitted successfully');
+                    cancel_id.id = res.body.cancelRequest['_id'];
                     done();
                 });
         });
@@ -215,6 +219,74 @@ describe('User Cancel request', () => {
                     done();
                 });
         });
+    })
+
+    describe('/GET - View user cancel requests', () => {
+        it('it should show no cancel requests if empty', (done) => {
+            chai.request(server)
+                .get('/api/v1/cancel')
+                .set('Authorization', tokenObject2.token)
+                .end((err, res) => {
+                    res.should.have.status(404);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('errors');
+                    res.body.errors.should.have.property('noCancelRequests').eql('You have not made any cancel requests');
+                    res.body.should.have.property('status').eql('success');
+                    done();
+                });
+        });
+        it('it should show no cancel request if id is not found', (done) => {
+            chai.request(server)
+                .get('/api/v1/cancel/5f49a9919e89172054d7dad8')
+                .set('Authorization', tokenObject.token)
+                .end((err, res) => {
+                    res.should.have.status(404);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('errors');
+                    res.body.errors.should.have.property('noRequest').eql('The request is not found');
+                    res.body.should.have.property('status').eql('success');
+                    done();
+                });
+        });
+        it('it should show 500 error if id is less than 2bytes', (done) => {
+            chai.request(server)
+                .get('/api/v1/cancel/5f49a9919')
+                .set('Authorization', tokenObject.token)
+                .end((err, res) => {
+                    res.should.have.status(500);
+                    done();
+                });
+        });
+        it('it should show all logged-in user cancel requests', (done) => {
+            chai.request(server)
+                .get('/api/v1/cancel')
+                .set('Authorization', tokenObject.token)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('cancelRequests');
+                    res.body.cancelRequests[0].should.have.property('profile').to.be.a('string');
+                    res.body.should.have.property('status').eql('success');
+                    res.body.should.have.property('message').eql('cancel requests fetched successfully');
+                    done();
+                });
+        });
+
+        it('it should show logged-in user cancel request by id', (done) => {
+            chai.request(server)
+                .get(`/api/v1/cancel/${cancel_id.id}`)
+                .set('Authorization', tokenObject.token)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('cancelRequest');
+                    res.body.cancelRequest.should.have.property('profile').to.be.a('string');
+                    res.body.should.have.property('status').eql('success');
+                    res.body.should.have.property('message').eql('cancel request fetched successfully');
+                    done();
+                });
+        });
+
     })
 
 })

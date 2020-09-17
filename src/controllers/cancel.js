@@ -104,7 +104,7 @@ router.get('/', passport.authenticate('jwt', {
         if (cancelRequests.length) {
             return res.status(200).json({
                 status: 'success',
-                message: 'requests fetched successfully',
+                message: 'cancel requests fetched successfully',
                 cancelRequests
             });
         }
@@ -140,7 +140,7 @@ router.get('/:cancel_id', passport.authenticate('jwt', {
             });
             return res.status(200).json({
                 status: 'success',
-                message: 'request fetched successfully',
+                message: 'cancel request fetched successfully',
                 rcode: myRequest.rcode,
                 cancelRequest
             });
