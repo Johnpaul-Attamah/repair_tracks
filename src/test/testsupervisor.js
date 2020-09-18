@@ -534,4 +534,115 @@ describe('Supervisor', () => {
 
     })
 
+    describe('/put - supervisor mark cancel status as rejected', () => {
+        it("Should not update cancel status when token didn't match", (done) => {
+            chai.request(server)
+                .put(`/api/v1/supervisor/request/cancel/reject/${cancelId.id}`)
+                .set('Authorization', fakeToken)
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    res.body.should.be.eql({});
+                    done(err);
+                });
+        });
+        it("Should not update cancel status when user is not a supervisor ", (done) => {
+            chai.request(server)
+                .put(`/api/v1/supervisor/request/cancel/reject/${cancelId.id}`)
+                .set('Authorization', testUserToken.token)
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('errors');
+                    res.body.errors.should.have.property('noPermission').eql('Only Supervisors can Update a cancel request Status');
+                    res.body.should.have.property('status').eql('failed');
+                    done();
+                });
+        });
+        it("Should not update cancel status when request id is not found", (done) => {
+            chai.request(server)
+                .put(`/api/v1/supervisor/request/cancel/reject/${testRequestId.id}`)
+                .set('Authorization', supervisorToken.token)
+                .end((err, res) => {
+                    res.should.have.status(404);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('errors');
+                    res.body.errors.should.have.property('noRequest').eql('The cancel request is not found');
+                    res.body.should.have.property('status').eql('success');
+                    done();
+                });
+        });
+        it("Should update a cancel request status to rejected.", (done) => {
+            chai.request(server)
+                .put(`/api/v1/supervisor/request/cancel/reject/${cancelId.id}`)
+                .set('Authorization', supervisorToken.token)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('upDatedCancelRequest');
+                    res.body.upDatedCancelRequest.should.have.property('status').eql('rejected');
+                    res.body.should.have.property('msg').eql('Cancel request Updated successfully');
+                    res.body.should.have.property('status').eql('Success');
+                    done();
+                });
+        });
+
+    });
+
+    describe('/put - supervisor mark cancel status as approved', () => {
+        it("Should not update cancel status when token didn't match", (done) => {
+            chai.request(server)
+                .put(`/api/v1/supervisor/request/cancel/approve/${cancelId.id}`)
+                .set('Authorization', fakeToken)
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    res.body.should.be.eql({});
+                    done(err);
+                });
+        });
+        it("Should not update cancel status when user is not a supervisor ", (done) => {
+            chai.request(server)
+                .put(`/api/v1/supervisor/request/cancel/approve/${cancelId.id}`)
+                .set('Authorization', testUserToken.token)
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('errors');
+                    res.body.errors.should.have.property('noPermission').eql('Only Supervisors can Update a cancel request Status');
+                    res.body.should.have.property('status').eql('failed');
+                    done();
+                });
+        });
+        it("Should not update cancel status when request id is not found", (done) => {
+            chai.request(server)
+                .put(`/api/v1/supervisor/request/cancel/approve/${testRequestId.id}`)
+                .set('Authorization', supervisorToken.token)
+                .end((err, res) => {
+                    res.should.have.status(404);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('errors');
+                    res.body.errors.should.have.property('noRequest').eql('The cancel request is not found');
+                    res.body.should.have.property('status').eql('success');
+                    done();
+                });
+        });
+        it("Should update a cancel request status to approved and request status to rejected.", (done) => {
+            chai.request(server)
+                .put(`/api/v1/supervisor/request/cancel/approve/${cancelId.id}`)
+                .set('Authorization', supervisorToken.token)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('upDatedCancelRequest');
+                    res.body.should.have.property('upDatedRequest');
+                    res.body.upDatedCancelRequest.should.have.property('status').eql('approved');
+                    res.body.upDatedRequest.should.have.property('status').eql('rejected');
+                    res.body.should.have.property('msg').eql('Cancel request Updated successfully');
+                    res.body.should.have.property('status').eql('Success');
+                    done();
+                });
+        });
+
+    });
+
+
 })
