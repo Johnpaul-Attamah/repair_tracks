@@ -154,7 +154,7 @@ router.put('/request/start/:request_id', passport.authenticate('jwt', {
 });
 
 /**
- * @description update request set status to started
+ * @description update request set status to in-progress
  * @access private access
  * PATCH api/v1/supervisor/request/inprogress/:request_id
  * */
@@ -205,7 +205,7 @@ router.put('/request/inprogress/:request_id', passport.authenticate('jwt', {
 });
 
 /**
- * @description update request set status to started
+ * @description update request set status to processing...
  * @access private access
  * PATCH api/v1/supervisor/request/processing/:request_id
  * */
@@ -256,7 +256,7 @@ router.put('/request/processing/:request_id', passport.authenticate('jwt', {
 });
 
 /**
- * @description update request set status to started
+ * @description update request set status to completed
  * @access private access
  * PATCH api/v1/supervisor/request/completed/:request_id
  * */
@@ -307,7 +307,7 @@ router.put('/request/completed/:request_id', passport.authenticate('jwt', {
 });
 
 /**
- * @description update request set status to started
+ * @description update request set status to rejected
  * @access private access
  * PATCH api/v1/supervisor/request/cancel/:request_id
  * */
@@ -456,6 +456,120 @@ router.get('/request/cancel/:cancel_id', passport.authenticate('jwt', {
     }
 });
 
+/**
+ * @description update cancel request set status to rejected
+ * @access private access
+ * PATCH api/v1/supervisor/request/cancel/reject/:cancel_id
+ * */
+router.put('/request/cancel/reject/:cancel_id', passport.authenticate('jwt', {
+    session: false
+}), async (req, res) => {
+    const errors = {};
+
+    const cancelFields = {};
+
+    try {
+        if (req.user.role === 'supervisor') {
+            const cancelRequest = await Cancel.findOne({
+                _id: req.params.cancel_id
+            }).populate('User', ['name', 'avatar']);
+            if (cancelRequest) {
+                cancelFields.status = 'rejected';
+                cancelFields.updated_at = Date.now();
+
+                const upDatedCancelRequest = await Cancel.findOneAndUpdate({
+                    _id: req.params.cancel_id
+                }, {
+                    $set: cancelFields
+                }, {
+                    new: true
+                });
+
+                return res.status(200).json({
+                    status: 'Success',
+                    msg: 'Cancel request Updated successfully',
+                    upDatedCancelRequest
+                });
+            }
+            errors.noRequest = 'The cancel request is not found';
+            return res.status(404).json({
+                status: 'success',
+                errors
+            });
+        }
+        errors.noPermission = 'Only Supervisors can Update a cancel request Status';
+        return res.status(401).json({
+            status: 'failed',
+            errors
+        });
+    } catch (error) {
+        return res.status(500).json(error);
+    }
+});
+
+/**
+ * @description update cancel request set status to approved
+ * @access private access
+ * PATCH api/v1/supervisor/request/cancel/approve/:cancel_id
+ * */
+router.put('/request/cancel/approve/:cancel_id', passport.authenticate('jwt', {
+    session: false
+}), async (req, res) => {
+    const errors = {};
+
+    const cancelFields = {};
+    const requestFields = {};
+
+    try {
+        if (req.user.role === 'supervisor') {
+            const cancelRequest = await Cancel.findOne({
+                _id: req.params.cancel_id
+            }).populate('User', ['name', 'avatar']);
+            if (cancelRequest) {
+                cancelFields.status = 'approved';
+                cancelFields.updated_at = Date.now();
+
+                const upDatedCancelRequest = await Cancel.findOneAndUpdate({
+                    _id: req.params.cancel_id
+                }, {
+                    $set: cancelFields
+                }, {
+                    new: true
+                });
+                const request = await Request.findOne({ _id: cancelRequest.request });
+                requestFields.status = 'rejected';
+                requestFields.updated_at = Date.now();
+
+                const upDatedRequest = await Request.findOneAndUpdate({
+                    _id: cancelRequest.request
+                }, {
+                    $set: requestFields
+                }, {
+                    new: true
+                });
+
+                return res.status(200).json({
+                    status: 'Success',
+                    msg: 'Cancel request Updated successfully',
+                    upDatedCancelRequest,
+                    upDatedRequest
+                });
+            }
+            errors.noRequest = 'The cancel request is not found';
+            return res.status(404).json({
+                status: 'success',
+                errors
+            });
+        }
+        errors.noPermission = 'Only Supervisors can Update a cancel request Status';
+        return res.status(401).json({
+            status: 'failed',
+            errors
+        });
+    } catch (error) {
+        return res.status(500).json(error);
+    }
+});
 
 
 export default router;
