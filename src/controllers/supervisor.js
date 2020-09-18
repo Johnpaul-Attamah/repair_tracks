@@ -154,7 +154,7 @@ router.put('/request/start/:request_id', passport.authenticate('jwt', {
 });
 
 /**
- * @description update request set status to started
+ * @description update request set status to in-progress
  * @access private access
  * PATCH api/v1/supervisor/request/inprogress/:request_id
  * */
@@ -205,7 +205,7 @@ router.put('/request/inprogress/:request_id', passport.authenticate('jwt', {
 });
 
 /**
- * @description update request set status to started
+ * @description update request set status to processing...
  * @access private access
  * PATCH api/v1/supervisor/request/processing/:request_id
  * */
@@ -256,7 +256,7 @@ router.put('/request/processing/:request_id', passport.authenticate('jwt', {
 });
 
 /**
- * @description update request set status to started
+ * @description update request set status to completed
  * @access private access
  * PATCH api/v1/supervisor/request/completed/:request_id
  * */
@@ -307,7 +307,7 @@ router.put('/request/completed/:request_id', passport.authenticate('jwt', {
 });
 
 /**
- * @description update request set status to started
+ * @description update request set status to rejected
  * @access private access
  * PATCH api/v1/supervisor/request/cancel/:request_id
  * */
@@ -518,6 +518,7 @@ router.put('/request/cancel/approve/:cancel_id', passport.authenticate('jwt', {
     const errors = {};
 
     const cancelFields = {};
+    const requestFields = {};
 
     try {
         if (req.user.role === 'supervisor') {
@@ -535,11 +536,23 @@ router.put('/request/cancel/approve/:cancel_id', passport.authenticate('jwt', {
                 }, {
                     new: true
                 });
+                const request = await Request.findOne({ _id: cancelRequest.request });
+                requestFields.status = 'rejected';
+                requestFields.updated_at = Date.now();
+
+                const upDatedRequest = await Request.findOneAndUpdate({
+                    _id: cancelRequest.request
+                }, {
+                    $set: requestFields
+                }, {
+                    new: true
+                });
 
                 return res.status(200).json({
                     status: 'Success',
                     msg: 'Cancel request Updated successfully',
-                    upDatedCancelRequest
+                    upDatedCancelRequest,
+                    upDatedRequest
                 });
             }
             errors.noRequest = 'The cancel request is not found';
